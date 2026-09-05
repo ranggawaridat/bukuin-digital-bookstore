@@ -80,6 +80,20 @@ func main() {
 	)
 
 	r.Get(
+		"/books/{id}",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/book.html",
+			)
+		},
+	)
+
+	r.Get(
 		"/login",
 		func(
 			w http.ResponseWriter,

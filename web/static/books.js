@@ -92,6 +92,14 @@ function renderBooks(books) {
 
         `;
 
+        card.addEventListener(
+            "click",
+            () => {
+                window.location.href =
+                    `/books/${book.id}`;
+            },
+        );
+
         bookList.appendChild(card);
 
     });
