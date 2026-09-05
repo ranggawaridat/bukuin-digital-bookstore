@@ -2,12 +2,25 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/database"
 )
 
 func main() {
+	db, err := database.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	if err := database.Migrate(db); err != nil {
+		log.Fatal(err)
+	}
+
 	r := chi.NewRouter()
 
 	r.Handle(
@@ -30,5 +43,7 @@ func main() {
 
 	fmt.Println("Bukuin is running on http://localhost:8080")
 
-	http.ListenAndServe(":8080", r)
+	log.Fatal(
+		http.ListenAndServe(":8080", r),
+	)
 }
