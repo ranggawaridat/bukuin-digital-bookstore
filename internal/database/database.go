@@ -7,7 +7,10 @@ import (
 )
 
 func Connect() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "./bukuin.db")
+	db, err := sql.Open(
+		"sqlite",
+		"./bukuin.db",
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Katalog Buku - Bukuin</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+        BUKUIN.
+    </a>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/books">Books</a>
+    </nav>
+
+</header>
+
+<main class="catalog">
+
+    <section class="catalog-header">
+
+        <p class="eyebrow">
+            DIGITAL BOOKSTORE
+        </p>
+
+        <h1>
+            Temukan Buku
+        </h1>
+
+        <p>
+            Jelajahi koleksi buku pilihan di Bukuin.
+        </p>
+
+        <div class="filters">
+
+            <input
+                type="text"
+                id="search"
+                placeholder="Cari buku atau penulis..."
+            >
+
+            <select id="category">
+
+                <option value="">
+                    Semua Kategori
+                </option>
+
+                <option value="Novel">
+                    Novel
+                </option>
+
+                <option value="Filsafat">
+                    Filsafat
+                </option>
+
+                <option value="Pengembangan Diri">
+                    Pengembangan Diri
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+    <section
+        id="book-list"
+        class="book-grid"
+    >
+
+        <p>
+            Loading books...
+        </p>
+
+    </section>
+
+</main>
+
+<script src="/static/books.js"></script>
+
+</body>
+
+</html>
