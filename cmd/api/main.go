@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/book"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/database"
 )
@@ -29,9 +30,13 @@ func main() {
 	}
 
 	bookRepository := book.NewRepository(db)
-
 	bookHandler := book.NewHandler(
 		bookRepository,
+	)
+
+	authRepository := auth.NewRepository(db)
+	authHandler := auth.NewHandler(
+		authRepository,
 	)
 
 	r := chi.NewRouter()
@@ -75,6 +80,34 @@ func main() {
 	)
 
 	r.Get(
+		"/login",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/login.html",
+			)
+		},
+	)
+
+	r.Get(
+		"/register",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/register.html",
+			)
+		},
+	)
+
+	r.Get(
 		"/api/books",
 		bookHandler.GetBooks,
 	)
@@ -82,6 +115,26 @@ func main() {
 	r.Get(
 		"/api/books/{id}",
 		bookHandler.GetBookByID,
+	)
+
+	r.Post(
+		"/api/auth/register",
+		authHandler.Register,
+	)
+
+	r.Post(
+		"/api/auth/login",
+		authHandler.Login,
+	)
+
+	r.Post(
+		"/api/auth/logout",
+		authHandler.Logout,
+	)
+
+	r.Get(
+		"/api/auth/me",
+		authHandler.Me,
 	)
 
 	fmt.Println(
