@@ -2,70 +2,43 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"sort"
 )
 
 func Migrate(db *sql.DB) error {
-	_, err := db.Exec(`
-		CREATE TABLE IF NOT EXISTS schema_migrations (
-			version TEXT PRIMARY KEY,
-			applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+	files, err := filepath.Glob(
+		"migrations/*.sql",
+	)
+	if err != nil {
+		return err
+	}
+
+	sort.Strings(files)
+
+	for _, file := range files {
+		content, err := os.ReadFile(file)
+		if err != nil {
+			return fmt.Errorf(
+				"failed to read migration %s: %w",
+				file,
+				err,
+			)
+		}
+
+		_, err = db.Exec(
+			string(content),
 		)
-	`)
-	if err != nil {
-		return err
+		if err != nil {
+			return fmt.Errorf(
+				"failed to execute migration %s: %w",
+				file,
+				err,
+			)
+		}
 	}
-
-	version := "001_init"
-
-	var appliedVersion string
-
-	err = db.QueryRow(
-		`
-		SELECT version
-		FROM schema_migrations
-		WHERE version = ?
-		`,
-		version,
-	).Scan(&appliedVersion)
-
-	if err == nil {
-		return nil
-	}
-
-	if !errors.Is(err, sql.ErrNoRows) {
-		return err
-	}
-
-	sqlFile, err := os.ReadFile(
-		"./migrations/001_init.sql",
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(string(sqlFile))
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(
-		`
-		INSERT INTO schema_migrations (version)
-		VALUES (?)
-		`,
-		version,
-	)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(
-		"migration applied:",
-		version,
-	)
 
 	return nil
 }

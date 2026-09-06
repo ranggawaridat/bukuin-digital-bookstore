@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/book"
+	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/cart"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/database"
 )
 
@@ -37,6 +38,11 @@ func main() {
 	authRepository := auth.NewRepository(db)
 	authHandler := auth.NewHandler(
 		authRepository,
+	)
+
+	cartRepository := cart.NewRepository(db)
+	cartHandler := cart.NewHandler(
+		cartRepository,
 	)
 
 	r := chi.NewRouter()
@@ -89,6 +95,20 @@ func main() {
 				w,
 				r,
 				"./web/static/book.html",
+			)
+		},
+	)
+
+	r.Get(
+		"/cart",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/cart.html",
 			)
 		},
 	)
@@ -149,6 +169,42 @@ func main() {
 	r.Get(
 		"/api/auth/me",
 		authHandler.Me,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/cart",
+		cartHandler.GetCart,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Post(
+		"/api/cart/items",
+		cartHandler.AddItem,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Put(
+		"/api/cart/items/{id}",
+		cartHandler.UpdateItem,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Delete(
+		"/api/cart/items/{id}",
+		cartHandler.DeleteItem,
 	)
 
 	fmt.Println(

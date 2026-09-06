@@ -97,7 +97,7 @@ function renderBook(book) {
                 id="buy-button"
                 class="button"
             >
-                Beli Sekarang
+                Tambah ke Keranjang
             </button>
 
         </div>
@@ -111,12 +111,63 @@ function renderBook(book) {
 
     buyButton.addEventListener(
         "click",
-        () => {
-            alert(
-                "Shopping cart akan hadir pada Phase 6 😈"
+        async () => {
+            await addToCart(
+                book.id
             );
         },
     );
+}
+
+
+async function addToCart(bookID) {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/cart/items",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        book_id: bookID,
+                    }),
+                },
+            );
+
+        if (
+            response.status === 401
+        ) {
+            window.location.href =
+                "/login";
+
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                "Gagal menambahkan buku ke keranjang."
+            );
+        }
+
+        window.location.href =
+            "/cart";
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+        console.error(error);
+
+    }
 }
 
 

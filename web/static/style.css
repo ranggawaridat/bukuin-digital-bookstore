@@ -348,6 +348,162 @@ nav a {
 }
 
 
+/* CART */
+
+.cart-page {
+    padding:
+        60px
+        10%;
+}
+
+.cart-container {
+    max-width: 1000px;
+
+    margin: 0 auto;
+}
+
+.cart-header {
+    margin-bottom: 40px;
+}
+
+.cart-header h1 {
+    font-size: 52px;
+
+    margin:
+        10px
+        0;
+}
+
+.cart-items {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+.cart-item {
+    display: grid;
+
+    grid-template-columns:
+        100px
+        1fr
+        auto;
+
+    gap: 24px;
+
+    align-items: center;
+
+    padding: 20px;
+
+    background: white;
+
+    border:
+        1px solid
+        #ddd;
+}
+
+.cart-item-cover {
+    width: 100px;
+
+    height: 130px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 48px;
+
+    background: #ece7dc;
+}
+
+.cart-item-info h2 {
+    margin-top: 0;
+}
+
+.cart-item-info p {
+    color: #666;
+}
+
+.cart-item-actions {
+    text-align: right;
+}
+
+.quantity-control {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 12px;
+}
+
+.quantity-control button {
+    width: 32px;
+
+    height: 32px;
+
+    border:
+        1px solid
+        #ccc;
+
+    background: white;
+
+    cursor: pointer;
+}
+
+.delete-button {
+    margin-top: 12px;
+
+    border: none;
+
+    background: none;
+
+    text-decoration: underline;
+
+    cursor: pointer;
+}
+
+.cart-summary {
+    margin-top: 30px;
+
+    padding: 25px;
+
+    background: white;
+
+    border:
+        1px solid
+        #ddd;
+}
+
+.cart-total {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    font-size: 24px;
+
+    margin-bottom: 25px;
+}
+
+.empty-cart {
+    padding: 50px;
+
+    text-align: center;
+
+    background: white;
+
+    border:
+        1px solid
+        #ddd;
+}
+
+
 /* AUTH */
 
 .auth-page {
@@ -490,6 +646,41 @@ nav a {
 
     .book-detail-cover {
         min-height: 350px;
+    }
+
+    .cart-page {
+        padding:
+            40px
+            6%;
+    }
+
+    .cart-item {
+        grid-template-columns:
+            80px
+            1fr;
+    }
+
+    .cart-item-cover {
+        width: 80px;
+
+        height: 110px;
+    }
+
+    .cart-item-actions {
+        grid-column:
+            1 / -1;
+
+        text-align: left;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+    }
+
+    .quantity-control {
+        justify-content: flex-start;
     }
 
     .auth-card {
