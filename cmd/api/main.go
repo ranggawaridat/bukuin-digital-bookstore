@@ -10,6 +10,7 @@ import (
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/book"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/cart"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/database"
+	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/order"
 )
 
 func main() {
@@ -43,6 +44,11 @@ func main() {
 	cartRepository := cart.NewRepository(db)
 	cartHandler := cart.NewHandler(
 		cartRepository,
+	)
+
+	orderRepository := order.NewRepository(db)
+	orderHandler := order.NewHandler(
+		orderRepository,
 	)
 
 	r := chi.NewRouter()
@@ -109,6 +115,34 @@ func main() {
 				w,
 				r,
 				"./web/static/cart.html",
+			)
+		},
+	)
+
+	r.Get(
+		"/orders",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/orders.html",
+			)
+		},
+	)
+
+	r.Get(
+		"/orders/{id}",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/order.html",
 			)
 		},
 	)
@@ -205,6 +239,33 @@ func main() {
 	}).Delete(
 		"/api/cart/items/{id}",
 		cartHandler.DeleteItem,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Post(
+		"/api/orders/checkout",
+		orderHandler.Checkout,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/orders",
+		orderHandler.GetOrders,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/orders/{id}",
+		orderHandler.GetOrderByID,
 	)
 
 	fmt.Println(

@@ -1,0 +1,23 @@
+package order
+
+import "time"
+
+type Order struct {
+	ID          int         `json:"id"`
+	UserID      int         `json:"user_id"`
+	TotalAmount float64     `json:"total_amount"`
+	Status      string      `json:"status"`
+	CreatedAt   time.Time   `json:"created_at"`
+	Items       []OrderItem `json:"items"`
+}
+
+type OrderItem struct {
+	ID       int     `json:"id"`
+	OrderID  int     `json:"order_id"`
+	BookID   int     `json:"book_id"`
+	Title    string  `json:"title"`
+	Author   string  `json:"author"`
+	Price    float64 `json:"price"`
+	Quantity int     `json:"quantity"`
+	Subtotal float64 `json:"subtotal"`
+}

@@ -257,13 +257,7 @@ function renderCart(cart) {
 
     checkoutButton.addEventListener(
         "click",
-        () => {
-
-            alert(
-                "Checkout akan hadir pada Phase 7 🔥"
-            );
-
-        },
+        checkout,
     );
 }
 
@@ -342,6 +336,64 @@ async function deleteItem(
         );
 
         console.error(error);
+
+    }
+}
+
+
+async function checkout() {
+
+    const checkoutButton =
+        document.getElementById(
+            "checkout-button"
+        );
+
+    checkoutButton.disabled =
+        true;
+
+    checkoutButton.textContent =
+        "Memproses...";
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/orders/checkout",
+                {
+                    method: "POST",
+                },
+            );
+
+        if (!response.ok) {
+
+            const message =
+                await response.text();
+
+            throw new Error(
+                message ||
+                "Checkout gagal."
+            );
+        }
+
+        const order =
+            await response.json();
+
+        window.location.href =
+            `/orders/${order.id}`;
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+        console.error(error);
+
+        checkoutButton.disabled =
+            false;
+
+        checkoutButton.textContent =
+            "Checkout";
 
     }
 }
