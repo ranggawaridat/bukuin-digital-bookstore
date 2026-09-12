@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/admin"
@@ -14,7 +16,44 @@ import (
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/order"
 )
 
+func loadDotEnv() error {
+	content, err := os.ReadFile(".env")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	for _, line := range strings.Split(string(content), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+
+		if _, exists := os.LookupEnv(key); !exists {
+			if err := os.Setenv(key, value); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func main() {
+	if err := loadDotEnv(); err != nil {
+		log.Fatal("failed to load .env:", err)
+	}
+
 	db, err := database.Connect()
 	if err != nil {
 		log.Fatal(
@@ -297,6 +336,11 @@ func main() {
 	}).Get(
 		"/api/orders/{id}",
 		orderHandler.GetOrderByID,
+	)
+
+	r.Post(
+		"/api/orders/notification",
+		orderHandler.HandleNotification,
 	)
 
 	r.With(func(next http.Handler) http.Handler {

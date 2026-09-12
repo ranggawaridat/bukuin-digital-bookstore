@@ -382,6 +382,11 @@ async function checkout() {
         const order =
             await response.json();
 
+        if (order.payment_url) {
+            window.location.href = order.payment_url;
+            return;
+        }
+
         window.location.href =
             `/orders/${order.id}`;
 

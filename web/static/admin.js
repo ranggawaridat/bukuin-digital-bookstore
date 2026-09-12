@@ -144,10 +144,15 @@ function renderOrdersSummary(orders) {
                     <div>
                         <strong>#${order.id}</strong>
                         <p>${order.user_name || "User"}</p>
+                        <p>
+                            ${order.transaction_id ? `Transaksi: ${order.transaction_id}` : "Transaksi belum dibuat"}
+                        </p>
+                        ${order.payment_url ? `<p><a href="${order.payment_url}" target="_blank" rel="noopener noreferrer">Buka link pembayaran</a></p>` : ""}
                     </div>
                     <div>
                         <p>Rp${Number(order.total_amount).toLocaleString("id-ID")}</p>
                         <span>${order.status}</span>
+                        ${order.payment_method ? `<span class="payment-tag">${order.payment_method}</span>` : ""}
                     </div>
                 </article>
             `
@@ -248,6 +253,11 @@ bookForm.addEventListener("submit", async (event) => {
     const coverFile = formData.get("cover");
     if (coverFile instanceof File && coverFile.size > 0) {
         body.append("cover", coverFile);
+    }
+
+    const ebookFile = formData.get("ebook");
+    if (ebookFile instanceof File && ebookFile.size > 0) {
+        body.append("ebook", ebookFile);
     }
 
     const response = await fetch(url, {

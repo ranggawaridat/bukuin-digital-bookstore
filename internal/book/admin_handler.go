@@ -86,6 +86,23 @@ func (h *Handler) UpdateBook(
 		return
 	}
 
+	existingBook, err := h.repository.GetByID(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "book not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to load book", http.StatusInternalServerError)
+		return
+	}
+
+	if request.CoverURL == "" {
+		request.CoverURL = existingBook.CoverURL
+	}
+	if request.FilePath == "" {
+		request.FilePath = existingBook.FilePath
+	}
+
 	book, err := h.repository.Update(id, request)
 	if errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "book not found", http.StatusNotFound)
@@ -101,7 +118,7 @@ func (h *Handler) UpdateBook(
 }
 
 func parseCreateBookRequest(r *http.Request) (CreateBookRequest, error) {
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
+	if err := r.ParseMultipartForm(50 << 20); err != nil {
 		return CreateBookRequest{}, err
 	}
 
@@ -119,44 +136,76 @@ func parseCreateBookRequest(r *http.Request) (CreateBookRequest, error) {
 		request.Price = price
 	}
 
-	cover, header, err := r.FormFile("cover")
-	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
-			return request, nil
-		}
-		return request, err
-	}
-	defer cover.Close()
-
-	contentType := strings.TrimSpace(header.Header.Get("Content-Type"))
-	if contentType != "" && !strings.HasPrefix(contentType, "image/") {
-		return request, errors.New("cover must be an image file")
-	}
-
 	uploadDir := filepath.Clean("./web/static/uploads")
 	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
 		return request, err
 	}
 
-	fileExt := filepath.Ext(header.Filename)
-	if fileExt == "" {
-		fileExt = ".png"
-	}
+	cover, coverHeader, err := r.FormFile("cover")
+	if err == nil {
+		defer cover.Close()
 
-	fileName := fmt.Sprintf("book-cover-%d%s", time.Now().UnixNano(), fileExt)
-	destination := filepath.Join(uploadDir, fileName)
+		contentType := strings.TrimSpace(coverHeader.Header.Get("Content-Type"))
+		if contentType != "" && !strings.HasPrefix(contentType, "image/") {
+			return request, errors.New("cover must be an image file")
+		}
 
-	destinationFile, err := os.Create(destination)
-	if err != nil {
+		fileExt := filepath.Ext(coverHeader.Filename)
+		if fileExt == "" {
+			fileExt = ".png"
+		}
+
+		fileName := fmt.Sprintf("book-cover-%d%s", time.Now().UnixNano(), fileExt)
+		destination := filepath.Join(uploadDir, fileName)
+
+		destinationFile, err := os.Create(destination)
+		if err != nil {
+			return request, err
+		}
+		defer destinationFile.Close()
+
+		if _, err := io.Copy(destinationFile, cover); err != nil {
+			return request, err
+		}
+
+		request.CoverURL = "/static/uploads/" + fileName
+	} else if !errors.Is(err, http.ErrMissingFile) {
 		return request, err
 	}
-	defer destinationFile.Close()
 
-	if _, err := io.Copy(destinationFile, cover); err != nil {
+	ebook, ebookHeader, err := r.FormFile("ebook")
+	if err == nil {
+		defer ebook.Close()
+
+		contentType := strings.TrimSpace(ebookHeader.Header.Get("Content-Type"))
+		isPDFContentType := strings.Contains(strings.ToLower(contentType), "pdf") || strings.HasSuffix(strings.ToLower(ebookHeader.Filename), ".pdf")
+		if contentType != "" && !isPDFContentType {
+			return request, errors.New("ebook must be a PDF file")
+		}
+
+		fileExt := filepath.Ext(ebookHeader.Filename)
+		if fileExt == "" || !strings.EqualFold(fileExt, ".pdf") {
+			fileExt = ".pdf"
+		}
+
+		fileName := fmt.Sprintf("book-file-%d%s", time.Now().UnixNano(), fileExt)
+		destination := filepath.Join(uploadDir, fileName)
+
+		destinationFile, err := os.Create(destination)
+		if err != nil {
+			return request, err
+		}
+		defer destinationFile.Close()
+
+		if _, err := io.Copy(destinationFile, ebook); err != nil {
+			return request, err
+		}
+
+		request.FilePath = "/static/uploads/" + fileName
+	} else if !errors.Is(err, http.ErrMissingFile) {
 		return request, err
 	}
 
-	request.CoverURL = "/static/uploads/" + fileName
 	return request, nil
 }
 

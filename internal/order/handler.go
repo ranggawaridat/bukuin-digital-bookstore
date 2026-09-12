@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
@@ -42,6 +44,8 @@ func (h *Handler) Checkout(
 
 	order, err := h.repository.Checkout(
 		user.ID,
+		user.Name,
+		user.Email,
 	)
 	if err != nil {
 
@@ -83,6 +87,64 @@ func (h *Handler) Checkout(
 	json.NewEncoder(w).Encode(
 		order,
 	)
+}
+
+func (h *Handler) HandleNotification(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var payload struct {
+		OrderID           string `json:"order_id"`
+		TransactionID     string `json:"transaction_id"`
+		TransactionStatus string `json:"transaction_status"`
+		PaymentType       string `json:"payment_type"`
+		FraudStatus       string `json:"fraud_status"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid payload", http.StatusBadRequest)
+		return
+	}
+
+	orderIDValue := strings.TrimPrefix(payload.OrderID, "bukuin-")
+	orderID, err := strconv.Atoi(orderIDValue)
+	if err != nil || orderID <= 0 {
+		http.Error(w, "invalid order id", http.StatusBadRequest)
+		return
+	}
+
+	status := strings.ToLower(payload.TransactionStatus)
+	if status == "capture" || status == "settlement" {
+		status = "paid"
+	}
+	if status == "pending" {
+		status = "pending"
+	}
+	if status == "cancel" || status == "expire" || status == "deny" {
+		status = "cancelled"
+	}
+	if status == "refund" || status == "partial_refund" {
+		status = "refunded"
+	}
+
+	paidAt := time.Now()
+	if status != "paid" {
+		paidAt = time.Time{}
+	}
+
+	if err := h.repository.UpdatePaymentStatus(
+		orderID,
+		status,
+		payload.PaymentType,
+		payload.TransactionID,
+		paidAt,
+	); err != nil {
+		log.Printf("UPDATE PAYMENT STATUS ERROR: %v", err)
+		http.Error(w, "failed to update payment status", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) GetOrders(

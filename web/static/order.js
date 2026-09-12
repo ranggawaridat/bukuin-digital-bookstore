@@ -86,10 +86,32 @@ function renderOrder(
             order.created_at
         );
 
+    const paymentBadge = order.payment_method
+        ? `<span class="order-payment-method">${order.payment_method}</span>`
+        : "";
+
+    const paymentActions = order.status !== "paid" && order.payment_url
+        ? `
+            <div class="order-payment-actions">
+                <a href="${order.payment_url}" target="_blank" rel="noopener noreferrer" class="button">
+                    Bayar Sekarang
+                </a>
+            </div>
+        `
+        : "";
+
     let itemsHTML = "";
 
     order.items.forEach(
         (item) => {
+
+            const downloadButton = order.status === "paid" && item.file_path
+                ? `
+                    <a href="${item.file_path}" target="_blank" rel="noopener noreferrer" class="button secondary-button">
+                        Download Ebook
+                    </a>
+                `
+                : "";
 
             itemsHTML += `
 
@@ -113,11 +135,12 @@ function renderOrder(
 
                     </div>
 
-                    <strong>
-
-                        Rp${item.subtotal.toLocaleString("id-ID")}
-
-                    </strong>
+                    <div class="order-item-actions">
+                        <strong>
+                            Rp${item.subtotal.toLocaleString("id-ID")}
+                        </strong>
+                        ${downloadButton}
+                    </div>
 
                 </div>
 
@@ -179,9 +202,23 @@ function renderOrder(
             <strong>
                 ${order.status}
             </strong>
+            ${paymentBadge}
+
+            ${order.transaction_id ? `
+                <p>
+                    ID Transaksi: <strong>${order.transaction_id}</strong>
+                </p>
+            ` : ""}
+
+            ${order.payment_method ? `
+                <p>
+                    Metode Pembayaran: <strong>${order.payment_method}</strong>
+                </p>
+            ` : ""}
 
         </div>
 
+        ${paymentActions}
 
         <a
             href="/orders"

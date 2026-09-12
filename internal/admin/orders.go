@@ -4,16 +4,21 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
 )
 
 type OrderSummary struct {
-	ID          int     `json:"id"`
-	UserID      int     `json:"user_id"`
-	UserName    string  `json:"user_name"`
-	TotalAmount float64 `json:"total_amount"`
-	Status      string  `json:"status"`
+	ID            int        `json:"id"`
+	UserID        int        `json:"user_id"`
+	UserName      string     `json:"user_name"`
+	TotalAmount   float64    `json:"total_amount"`
+	Status        string     `json:"status"`
+	PaymentMethod string     `json:"payment_method,omitempty"`
+	TransactionID string     `json:"transaction_id,omitempty"`
+	PaymentURL    string     `json:"payment_url,omitempty"`
+	PaidAt        *time.Time `json:"paid_at,omitempty"`
 }
 
 func (h *Handler) Orders(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +39,11 @@ func (h *Handler) Orders(w http.ResponseWriter, r *http.Request) {
 			o.user_id,
 			u.name,
 			o.total_amount,
-			o.status
+			o.status,
+			o.payment_method,
+			o.transaction_id,
+			o.payment_url,
+			o.paid_at
 		FROM orders o
 		JOIN users u ON u.id = o.user_id
 		ORDER BY o.created_at DESC
@@ -48,10 +57,40 @@ func (h *Handler) Orders(w http.ResponseWriter, r *http.Request) {
 	orders := []OrderSummary{}
 	for rows.Next() {
 		var order OrderSummary
-		if err := rows.Scan(&order.ID, &order.UserID, &order.UserName, &order.TotalAmount, &order.Status); err != nil {
+		var paymentMethod sql.NullString
+		var transactionID sql.NullString
+		var paymentURL sql.NullString
+		var paidAt sql.NullTime
+
+		if err := rows.Scan(
+			&order.ID,
+			&order.UserID,
+			&order.UserName,
+			&order.TotalAmount,
+			&order.Status,
+			&paymentMethod,
+			&transactionID,
+			&paymentURL,
+			&paidAt,
+		); err != nil {
 			http.Error(w, "failed to get orders", http.StatusInternalServerError)
 			return
 		}
+
+		if paymentMethod.Valid {
+			order.PaymentMethod = paymentMethod.String
+		}
+		if transactionID.Valid {
+			order.TransactionID = transactionID.String
+		}
+		if paymentURL.Valid {
+			order.PaymentURL = paymentURL.String
+		}
+		if paidAt.Valid {
+			paidAtCopy := paidAt.Time
+			order.PaidAt = &paidAtCopy
+		}
+
 		orders = append(orders, order)
 	}
 

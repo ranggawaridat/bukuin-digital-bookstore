@@ -1,8 +1,17 @@
 package order
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+	"time"
 )
 
 var ErrCartEmpty = errors.New(
@@ -23,6 +32,8 @@ func NewRepository(
 
 func (r *Repository) Checkout(
 	userID int,
+	userName string,
+	userEmail string,
 ) (*Order, error) {
 
 	tx, err := r.db.Begin()
@@ -231,7 +242,191 @@ func (r *Repository) Checkout(
 
 	committed = true
 
+	if err := r.createMidtransPayment(
+		order,
+		userName,
+		userEmail,
+	); err != nil {
+		return nil, err
+	}
+
 	return order, nil
+}
+
+func (r *Repository) createMidtransPayment(
+	order *Order,
+	userName string,
+	userEmail string,
+) error {
+	serverKey := strings.TrimSpace(
+		os.Getenv("MIDTRANS_SERVER_KEY"),
+	)
+	if serverKey == "" {
+		return nil
+	}
+
+	baseURL := strings.TrimSpace(
+		os.Getenv("MIDTRANS_BASE_URL"),
+	)
+	if baseURL == "" {
+		baseURL = "https://app.sandbox.midtrans.com"
+	}
+
+	itemDetails := make(
+		[]map[string]any,
+		0,
+		len(order.Items),
+	)
+	for _, item := range order.Items {
+		itemDetails = append(
+			itemDetails,
+			map[string]any{
+				"id":       fmt.Sprintf("%d", item.BookID),
+				"price":    int(item.Price),
+				"quantity": item.Quantity,
+				"name":     item.Title,
+			},
+		)
+	}
+
+	payload := map[string]any{
+		"transaction_details": map[string]any{
+			"order_id":     fmt.Sprintf("bukuin-%d", order.ID),
+			"gross_amount": int(order.TotalAmount),
+		},
+		"item_details":     itemDetails,
+		"enabled_payments": []string{"gopay", "bank_transfer", "shopeepay", "credit_card", "qris"},
+	}
+
+	if userName != "" || userEmail != "" {
+		payload["customer_details"] = map[string]any{
+			"first_name": userName,
+			"email":      userEmail,
+		}
+	}
+
+	bodyBytes, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest(
+		"POST",
+		baseURL+"/snap/v1/transactions",
+		bytes.NewReader(bodyBytes),
+	)
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set(
+		"Content-Type",
+		"application/json",
+	)
+	request.Header.Set(
+		"Accept",
+		"application/json",
+	)
+	request.Header.Set(
+		"Authorization",
+		"Basic "+base64.StdEncoding.EncodeToString([]byte(serverKey+":")),
+	)
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode >= http.StatusBadRequest {
+		return fmt.Errorf(
+			"midtrans request failed: %s",
+			strings.TrimSpace(string(responseBody)),
+		)
+	}
+
+	var snapResponse struct {
+		Token         string `json:"token"`
+		RedirectURL   string `json:"redirect_url"`
+		TransactionID string `json:"transaction_id"`
+	}
+
+	if err := json.Unmarshal(
+		responseBody,
+		&snapResponse,
+	); err != nil {
+		return err
+	}
+
+	order.PaymentToken = snapResponse.Token
+	order.PaymentURL = snapResponse.RedirectURL
+	order.TransactionID = snapResponse.TransactionID
+
+	return r.updateOrderPayment(
+		order.ID,
+		snapResponse.Token,
+		snapResponse.RedirectURL,
+		snapResponse.TransactionID,
+	)
+}
+
+func (r *Repository) updateOrderPayment(
+	orderID int,
+	paymentToken string,
+	paymentURL string,
+	transactionID string,
+) error {
+	_, err := r.db.Exec(
+		`
+		UPDATE orders
+		SET
+			payment_token = ?,
+			payment_url = ?,
+			transaction_id = ?
+		WHERE id = ?
+		`,
+		paymentToken,
+		paymentURL,
+		transactionID,
+		orderID,
+	)
+	return err
+}
+
+func (r *Repository) UpdatePaymentStatus(
+	orderID int,
+	status string,
+	paymentMethod string,
+	transactionID string,
+	paidAt time.Time,
+) error {
+	var paidAtValue any
+	if !paidAt.IsZero() {
+		paidAtValue = paidAt
+	}
+
+	_, err := r.db.Exec(
+		`
+		UPDATE orders
+		SET
+			status = ?,
+			payment_method = ?,
+			transaction_id = ?,
+			paid_at = ?
+		WHERE id = ?
+		`,
+		status,
+		paymentMethod,
+		transactionID,
+		paidAtValue,
+		orderID,
+	)
+	return err
 }
 
 func (r *Repository) GetOrdersByUserID(
@@ -245,7 +440,12 @@ func (r *Repository) GetOrdersByUserID(
 			user_id,
 			total_amount,
 			status,
-			created_at
+			created_at,
+			payment_token,
+			payment_url,
+			payment_method,
+			transaction_id,
+			paid_at
 
 		FROM orders
 
@@ -266,6 +466,11 @@ func (r *Repository) GetOrdersByUserID(
 	for rows.Next() {
 
 		var order Order
+		var paymentToken sql.NullString
+		var paymentURL sql.NullString
+		var paymentMethod sql.NullString
+		var transactionID sql.NullString
+		var paidAt sql.NullTime
 
 		err := rows.Scan(
 			&order.ID,
@@ -273,9 +478,31 @@ func (r *Repository) GetOrdersByUserID(
 			&order.TotalAmount,
 			&order.Status,
 			&order.CreatedAt,
+			&paymentToken,
+			&paymentURL,
+			&paymentMethod,
+			&transactionID,
+			&paidAt,
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if paymentToken.Valid {
+			order.PaymentToken = paymentToken.String
+		}
+		if paymentURL.Valid {
+			order.PaymentURL = paymentURL.String
+		}
+		if paymentMethod.Valid {
+			order.PaymentMethod = paymentMethod.String
+		}
+		if transactionID.Valid {
+			order.TransactionID = transactionID.String
+		}
+		if paidAt.Valid {
+			paidAtValue := paidAt.Time
+			order.PaidAt = &paidAtValue
 		}
 
 		orders = append(
@@ -297,6 +524,11 @@ func (r *Repository) GetOrderByID(
 ) (*Order, error) {
 
 	var order Order
+	var paymentToken sql.NullString
+	var paymentURL sql.NullString
+	var paymentMethod sql.NullString
+	var transactionID sql.NullString
+	var paidAt sql.NullTime
 
 	err := r.db.QueryRow(
 		`
@@ -305,7 +537,12 @@ func (r *Repository) GetOrderByID(
 			user_id,
 			total_amount,
 			status,
-			created_at
+			created_at,
+			payment_token,
+			payment_url,
+			payment_method,
+			transaction_id,
+			paid_at
 
 		FROM orders
 
@@ -321,27 +558,52 @@ func (r *Repository) GetOrderByID(
 		&order.TotalAmount,
 		&order.Status,
 		&order.CreatedAt,
+		&paymentToken,
+		&paymentURL,
+		&paymentMethod,
+		&transactionID,
+		&paidAt,
 	)
 
 	if err != nil {
 		return nil, err
 	}
 
+	if paymentToken.Valid {
+		order.PaymentToken = paymentToken.String
+	}
+	if paymentURL.Valid {
+		order.PaymentURL = paymentURL.String
+	}
+	if paymentMethod.Valid {
+		order.PaymentMethod = paymentMethod.String
+	}
+	if transactionID.Valid {
+		order.TransactionID = transactionID.String
+	}
+	if paidAt.Valid {
+		paidAtValue := paidAt.Time
+		order.PaidAt = &paidAtValue
+	}
+
 	rows, err := r.db.Query(
 		`
 		SELECT
-			id,
-			order_id,
-			book_id,
-			title,
-			author,
-			price,
-			quantity,
-			subtotal
+			oi.id,
+			oi.order_id,
+			oi.book_id,
+			oi.title,
+			oi.author,
+			oi.price,
+			oi.quantity,
+			oi.subtotal,
+			b.file_path
 
-		FROM order_items
+		FROM order_items oi
+		LEFT JOIN books b
+			ON b.id = oi.book_id
 
-		WHERE order_id = ?
+		WHERE oi.order_id = ?
 		`,
 		order.ID,
 	)
@@ -356,6 +618,7 @@ func (r *Repository) GetOrderByID(
 	for rows.Next() {
 
 		var item OrderItem
+		var filePath sql.NullString
 
 		err := rows.Scan(
 			&item.ID,
@@ -366,9 +629,14 @@ func (r *Repository) GetOrderByID(
 			&item.Price,
 			&item.Quantity,
 			&item.Subtotal,
+			&filePath,
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if filePath.Valid {
+			item.FilePath = filePath.String
 		}
 
 		order.Items = append(
