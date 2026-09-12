@@ -4,8 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
 )
 
@@ -98,8 +101,77 @@ func (h *Handler) Orders(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(orders)
 }
 
-func (h *Handler) OrderDetails(w http.ResponseWriter, r *http.Request) {
-	_ = sql.ErrNoRows
-	_ = json.NewEncoder
-	_ = http.StatusOK
+func (h *Handler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request) {
+	user, err := auth.GetUserFromContext(r.Context())
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if user.Role != "admin" {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	orderID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil || orderID <= 0 {
+		http.Error(w, "invalid order id", http.StatusBadRequest)
+		return
+	}
+
+	var payload struct {
+		Status string `json:"status"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid payload", http.StatusBadRequest)
+		return
+	}
+
+	status := strings.ToLower(strings.TrimSpace(payload.Status))
+	if status == "" {
+		http.Error(w, "status is required", http.StatusBadRequest)
+		return
+	}
+
+	allowedStatuses := map[string]bool{
+		"pending":   true,
+		"paid":      true,
+		"cancelled": true,
+		"refunded":  true,
+	}
+
+	if !allowedStatuses[status] {
+		http.Error(w, "invalid status", http.StatusBadRequest)
+		return
+	}
+
+	var paidAtValue any
+	if status == "paid" {
+		paidAtValue = time.Now()
+	}
+
+	result, err := h.db.Exec(`
+		UPDATE orders
+		SET status = ?, paid_at = COALESCE(paid_at, ?)
+		WHERE id = ?
+	`, status, paidAtValue, orderID)
+	if err != nil {
+		http.Error(w, "failed to update order status", http.StatusInternalServerError)
+		return
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "failed to update order status", http.StatusInternalServerError)
+		return
+	}
+
+	if affected == 0 {
+		http.Error(w, "order not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": status})
 }

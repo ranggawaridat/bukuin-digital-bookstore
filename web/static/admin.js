@@ -151,13 +151,48 @@ function renderOrdersSummary(orders) {
                     </div>
                     <div>
                         <p>Rp${Number(order.total_amount).toLocaleString("id-ID")}</p>
-                        <span>${order.status}</span>
+                        <label class="order-status-control">
+                            <span>Status</span>
+                            <select data-order-id="${order.id}" data-status="${order.status}">
+                                <option value="pending" ${order.status === "pending" ? "selected" : ""}>Pending</option>
+                                <option value="paid" ${order.status === "paid" ? "selected" : ""}>Paid</option>
+                                <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
+                                <option value="refunded" ${order.status === "refunded" ? "selected" : ""}>Refunded</option>
+                            </select>
+                        </label>
                         ${order.payment_method ? `<span class="payment-tag">${order.payment_method}</span>` : ""}
                     </div>
                 </article>
             `
         )
         .join("");
+
+    ordersList.querySelectorAll("select[data-order-id]").forEach((select) => {
+        select.addEventListener("change", async (event) => {
+            const orderID = Number(event.target.dataset.orderId);
+            const status = event.target.value;
+
+            try {
+                const response = await fetch(`/api/admin/orders/${orderID}/status`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Gagal mengubah status order.");
+                }
+
+                await loadDashboard();
+            } catch (error) {
+                alert(error.message);
+                event.target.value = event.target.dataset.status;
+            }
+        });
+    });
 }
 
 function renderBestSelling(books, orders) {

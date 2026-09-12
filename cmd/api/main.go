@@ -365,6 +365,15 @@ func main() {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
 		})
+	}).Put(
+		"/api/admin/orders/{id}/status",
+		adminHandler.UpdateOrderStatus,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
 	}).Post(
 		"/api/admin/books",
 		bookHandler.CreateBook,
