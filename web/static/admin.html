@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard - Bukuin</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+        BUKUIN.
+    </a>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/books">Books</a>
+        <a href="/admin">Admin</a>
+    </nav>
+
+</header>
+
+<main class="admin-page">
+
+    <div class="admin-shell">
+
+        <aside class="admin-sidebar">
+
+            <h2>Admin</h2>
+
+            <nav>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#books">Kelola Buku</a>
+                <a href="#orders">Pesanan</a>
+            </nav>
+
+        </aside>
+
+        <section class="admin-content">
+
+            <div id="dashboard">
+
+                <p class="eyebrow">
+                    DASHBOARD
+                </p>
+
+                <h1>
+                    Admin Dashboard
+                </h1>
+
+                <div
+                    id="stats-grid"
+                    class="stats-grid"
+                >
+                    <p>
+                        Memuat statistik...
+                    </p>
+                </div>
+
+            </div>
+
+            <section
+                id="books"
+                class="admin-panel"
+            >
+
+                <div class="admin-panel-header">
+
+                    <h2>
+                        Kelola Buku
+                    </h2>
+
+                </div>
+
+                <form id="book-form" class="book-form">
+
+                    <input
+                        type="hidden"
+                        id="book-id"
+                        name="book_id"
+                    >
+
+                    <div class="form-grid">
+
+                        <label>
+                            Judul
+                            <input
+                                type="text"
+                                id="book-title"
+                                name="title"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Penulis
+                            <input
+                                type="text"
+                                id="book-author"
+                                name="author"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Kategori
+                            <input
+                                type="text"
+                                id="book-category"
+                                name="category"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Harga
+                            <input
+                                type="number"
+                                id="book-price"
+                                name="price"
+                                min="0"
+                                required
+                            >
+                        </label>
+
+                        <label class="full-width">
+                            Deskripsi
+                            <textarea
+                                id="book-description"
+                                name="description"
+                                rows="4"
+                                required
+                            ></textarea>
+                        </label>
+
+                        <label>
+                            Cover URL
+                            <input
+                                type="text"
+                                id="book-cover-url"
+                                name="cover_url"
+                            >
+                        </label>
+
+                        <label>
+                            File Path
+                            <input
+                                type="text"
+                                id="book-file-path"
+                                name="file_path"
+                            >
+                        </label>
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="button"
+                        >
+                            Simpan Buku
+                        </button>
+
+                        <button
+                            type="button"
+                            id="cancel-edit"
+                            class="secondary-button"
+                        >
+                            Batal Edit
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <div class="table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Judul</th>
+                                <th>Kategori</th>
+                                <th>Harga</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="books-table-body">
+                            <tr>
+                                <td colspan="4">
+                                    Memuat buku...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <section
+                id="orders"
+                class="admin-panel"
+            >
+
+                <div class="admin-panel-header">
+
+                    <h2>
+                        Pesanan Terbaru
+                    </h2>
+
+                </div>
+
+                <div
+                    id="orders-list"
+                    class="orders-summary"
+                >
+                    Memuat pesanan...
+                </div>
+
+            </section>
+
+            <section class="admin-panel">
+
+                <div class="admin-panel-header">
+
+                    <h2>
+                        Buku Terlaris
+                    </h2>
+
+                </div>
+
+                <ul
+                    id="best-selling-list"
+                    class="best-selling-list"
+                >
+                    Memuat data...
+                </ul>
+
+            </section>
+
+        </section>
+
+    </div>
+
+</main>
+
+<script src="/static/admin.js"></script>
+
+</body>
+
+</html>

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/admin"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/book"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/cart"
@@ -50,6 +51,8 @@ func main() {
 	orderHandler := order.NewHandler(
 		orderRepository,
 	)
+
+	adminHandler := admin.NewHandler(db)
 
 	r := chi.NewRouter()
 
@@ -176,6 +179,20 @@ func main() {
 	)
 
 	r.Get(
+		"/admin",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/admin.html",
+			)
+		},
+	)
+
+	r.Get(
 		"/api/books",
 		bookHandler.GetBooks,
 	)
@@ -266,6 +283,51 @@ func main() {
 	}).Get(
 		"/api/orders/{id}",
 		orderHandler.GetOrderByID,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/admin/stats",
+		adminHandler.Stats,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/admin/orders",
+		adminHandler.Orders,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Post(
+		"/api/admin/books",
+		bookHandler.CreateBook,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Put(
+		"/api/admin/books/{id}",
+		bookHandler.UpdateBook,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Delete(
+		"/api/admin/books/{id}",
+		bookHandler.DeleteBook,
 	)
 
 	fmt.Println(

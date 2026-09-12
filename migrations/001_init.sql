@@ -31,6 +31,19 @@ CREATE TABLE IF NOT EXISTS books (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT OR IGNORE INTO users (
+    name,
+    email,
+    password,
+    role
+)
+VALUES (
+    'Admin Bukuin',
+    'admin@bukuin.test',
+    'admin123',
+    'admin'
+);
+
 INSERT INTO books (
     title,
     author,

@@ -151,3 +151,104 @@ func (r *Repository) GetByID(
 
 	return &book, nil
 }
+
+func (r *Repository) Create(
+	request CreateBookRequest,
+) (*Book, error) {
+	result, err := r.db.Exec(
+		`
+		INSERT INTO books (
+			title,
+			author,
+			category,
+			description,
+			price,
+			cover_url,
+			file_path
+		)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+		`,
+		request.Title,
+		request.Author,
+		request.Category,
+		request.Description,
+		request.Price,
+		request.CoverURL,
+		request.FilePath,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+
+	return r.GetByID(int(id))
+}
+
+func (r *Repository) Update(
+	id int,
+	request CreateBookRequest,
+) (*Book, error) {
+	result, err := r.db.Exec(
+		`
+		UPDATE books
+		SET
+			title = ?,
+			author = ?,
+			category = ?,
+			description = ?,
+			price = ?,
+			cover_url = ?,
+			file_path = ?
+		WHERE id = ?
+		`,
+		request.Title,
+		request.Author,
+		request.Category,
+		request.Description,
+		request.Price,
+		request.CoverURL,
+		request.FilePath,
+		id,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if affected == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	return r.GetByID(id)
+}
+
+func (r *Repository) Delete(
+	id int,
+) error {
+	result, err := r.db.Exec(
+		`DELETE FROM books WHERE id = ?`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}

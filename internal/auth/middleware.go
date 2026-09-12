@@ -56,6 +56,50 @@ func (h *Handler) RequireAuth(
 	}
 }
 
+func (h *Handler) RequireAdmin(
+	next http.HandlerFunc,
+) http.HandlerFunc {
+	return func(
+		w http.ResponseWriter,
+		r *http.Request,
+	) {
+		h := h.RequireAuth(
+			func(
+				w http.ResponseWriter,
+				r *http.Request,
+			) {
+				user, err := GetUserFromContext(
+					r.Context(),
+				)
+				if err != nil {
+					http.Error(
+						w,
+						"unauthorized",
+						http.StatusUnauthorized,
+					)
+					return
+				}
+
+				if user.Role != "admin" {
+					http.Error(
+						w,
+						"forbidden",
+						http.StatusForbidden,
+					)
+					return
+				}
+
+				next.ServeHTTP(
+					w,
+					r,
+				)
+			},
+		)
+
+		h(w, r)
+	}
+}
+
 func GetUserFromContext(
 	ctx context.Context,
 ) (*User, error) {
