@@ -277,6 +277,7 @@ func (r *Repository) createMidtransPayment(
 		0,
 		len(order.Items),
 	)
+	midtransOrderID := fmt.Sprintf("bukuin-%d-%d", order.ID, time.Now().UnixNano())
 	for _, item := range order.Items {
 		itemDetails = append(
 			itemDetails,
@@ -291,7 +292,7 @@ func (r *Repository) createMidtransPayment(
 
 	payload := map[string]any{
 		"transaction_details": map[string]any{
-			"order_id":     fmt.Sprintf("bukuin-%d", order.ID),
+			"order_id":     midtransOrderID,
 			"gross_amount": int(order.TotalAmount),
 		},
 		"item_details":     itemDetails,
@@ -635,7 +636,7 @@ func (r *Repository) GetOrderByID(
 			return nil, err
 		}
 
-		if filePath.Valid {
+		if order.Status == "paid" && filePath.Valid {
 			item.FilePath = filePath.String
 		}
 

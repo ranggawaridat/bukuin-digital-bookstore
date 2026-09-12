@@ -107,6 +107,9 @@ func (h *Handler) HandleNotification(
 	}
 
 	orderIDValue := strings.TrimPrefix(payload.OrderID, "bukuin-")
+	if idx := strings.Index(orderIDValue, "-"); idx >= 0 {
+		orderIDValue = orderIDValue[:idx]
+	}
 	orderID, err := strconv.Atoi(orderIDValue)
 	if err != nil || orderID <= 0 {
 		http.Error(w, "invalid order id", http.StatusBadRequest)
