@@ -105,10 +105,10 @@ function renderOrder(
     order.items.forEach(
         (item) => {
 
-            const downloadButton = order.status === "paid" && item.file_path
+            const readButton = order.status === "paid" && item.file_path
                 ? `
                     <a href="${item.file_path}" target="_blank" rel="noopener noreferrer" class="button secondary-button">
-                        Download Ebook
+                        Baca Ebook
                     </a>
                 `
                 : "";
@@ -139,7 +139,7 @@ function renderOrder(
                         <strong>
                             Rp${item.subtotal.toLocaleString("id-ID")}
                         </strong>
-                        ${downloadButton}
+                        ${readButton}
                     </div>
 
                 </div>

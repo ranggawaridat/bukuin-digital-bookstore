@@ -190,6 +190,20 @@ func main() {
 	)
 
 	r.Get(
+		"/library",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/library.html",
+			)
+		},
+	)
+
+	r.Get(
 		"/login",
 		func(
 			w http.ResponseWriter,
@@ -336,6 +350,15 @@ func main() {
 	}).Get(
 		"/api/orders/{id}",
 		orderHandler.GetOrderByID,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/library",
+		orderHandler.GetLibrary,
 	)
 
 	r.Post(

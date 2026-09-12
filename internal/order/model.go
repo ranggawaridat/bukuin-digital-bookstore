@@ -27,3 +27,15 @@ type OrderItem struct {
 	Subtotal float64 `json:"subtotal"`
 	FilePath string  `json:"file_path,omitempty"`
 }
+
+type LibraryItem struct {
+	ID       int       `json:"id"`
+	OrderID  int       `json:"order_id"`
+	BookID   int       `json:"book_id"`
+	Title    string    `json:"title"`
+	Author   string    `json:"author"`
+	Category string    `json:"category"`
+	CoverURL string    `json:"cover_url,omitempty"`
+	FilePath string    `json:"file_path,omitempty"`
+	PaidAt   time.Time `json:"paid_at"`
+}

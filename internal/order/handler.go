@@ -195,6 +195,44 @@ func (h *Handler) GetOrders(
 	)
 }
 
+func (h *Handler) GetLibrary(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	user, err := auth.GetUserFromContext(
+		r.Context(),
+	)
+	if err != nil {
+		http.Error(
+			w,
+			"unauthorized",
+			http.StatusUnauthorized,
+		)
+		return
+	}
+
+	library, err := h.repository.GetLibraryByUserID(user.ID)
+	if err != nil {
+		log.Printf(
+			"GET LIBRARY ERROR: %v",
+			err,
+		)
+		http.Error(
+			w,
+			"failed to get library",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	json.NewEncoder(w).Encode(library)
+}
+
 func (h *Handler) GetOrderByID(
 	w http.ResponseWriter,
 	r *http.Request,

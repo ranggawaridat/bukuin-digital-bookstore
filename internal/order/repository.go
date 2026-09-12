@@ -519,6 +519,83 @@ func (r *Repository) GetOrdersByUserID(
 	return orders, nil
 }
 
+func (r *Repository) GetLibraryByUserID(
+	userID int,
+) ([]LibraryItem, error) {
+	rows, err := r.db.Query(
+		`
+		SELECT
+			oi.id,
+			oi.order_id,
+			oi.book_id,
+			oi.title,
+			oi.author,
+			b.category,
+			b.cover_url,
+			b.file_path,
+			o.paid_at
+
+		FROM order_items oi
+		JOIN orders o
+			ON o.id = oi.order_id
+		JOIN books b
+			ON b.id = oi.book_id
+
+		WHERE o.user_id = ?
+			AND o.status = 'paid'
+
+		ORDER BY o.paid_at DESC, oi.id DESC
+		`,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	library := make([]LibraryItem, 0)
+
+	for rows.Next() {
+		var item LibraryItem
+		var coverURL sql.NullString
+		var filePath sql.NullString
+		var paidAt sql.NullTime
+
+		err := rows.Scan(
+			&item.ID,
+			&item.OrderID,
+			&item.BookID,
+			&item.Title,
+			&item.Author,
+			&item.Category,
+			&coverURL,
+			&filePath,
+			&paidAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if coverURL.Valid {
+			item.CoverURL = coverURL.String
+		}
+		if filePath.Valid {
+			item.FilePath = filePath.String
+		}
+		if paidAt.Valid {
+			item.PaidAt = paidAt.Time
+		}
+
+		library = append(library, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return library, nil
+}
+
 func (r *Repository) GetOrderByID(
 	userID int,
 	orderID int,

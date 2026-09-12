@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <a href="/books">Books</a>
                 <a href="/cart">Cart</a>
                 <a href="/orders">Orders</a>
+                <a href="/library">My Library</a>
                 ${user.role === "admin" ? '<a href="/admin">Admin</a>' : ""}
                 <a href="/profile">Profile</a>
                 <button type="button" class="logout-button" data-action="logout">Logout</button>
