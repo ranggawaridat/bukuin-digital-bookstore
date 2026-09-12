@@ -4,6 +4,7 @@ const ordersList = document.getElementById("orders-list");
 const bestSellingList = document.getElementById("best-selling-list");
 const bookForm = document.getElementById("book-form");
 const cancelEditButton = document.getElementById("cancel-edit");
+const printReportButton = document.getElementById("print-report-button");
 
 async function requireAdmin() {
     const response = await fetch("/api/auth/me");
@@ -151,21 +152,37 @@ function renderOrdersSummary(orders) {
                     </div>
                     <div>
                         <p>Rp${Number(order.total_amount).toLocaleString("id-ID")}</p>
-                        <label class="order-status-control">
-                            <span>Status</span>
-                            <select data-order-id="${order.id}" data-status="${order.status}">
-                                <option value="pending" ${order.status === "pending" ? "selected" : ""}>Pending</option>
-                                <option value="paid" ${order.status === "paid" ? "selected" : ""}>Paid</option>
-                                <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
-                                <option value="refunded" ${order.status === "refunded" ? "selected" : ""}>Refunded</option>
-                            </select>
-                        </label>
+                        <div class="admin-order-controls">
+                            <label class="order-status-control">
+                                <span>Status</span>
+                                <select data-order-id="${order.id}" data-status="${order.status}">
+                                    <option value="pending" ${order.status === "pending" ? "selected" : ""}>Pending</option>
+                                    <option value="paid" ${order.status === "paid" ? "selected" : ""}>Paid</option>
+                                    <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
+                                    <option value="refunded" ${order.status === "refunded" ? "selected" : ""}>Refunded</option>
+                                </select>
+                            </label>
+                            <button type="button" class="secondary-button" data-invoice-order="${order.id}">Invoice</button>
+                        </div>
                         ${order.payment_method ? `<span class="payment-tag">${order.payment_method}</span>` : ""}
                     </div>
                 </article>
             `
         )
         .join("");
+
+    ordersList.querySelectorAll("[data-invoice-order]").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const orderID = Number(button.dataset.invoiceOrder);
+            const response = await fetch(`/api/admin/orders/${orderID}/invoice`);
+            if (!response.ok) {
+                alert("Gagal memuat invoice.");
+                return;
+            }
+            const invoice = await response.json();
+            openInvoiceWindow(invoice);
+        });
+    });
 
     ordersList.querySelectorAll("select[data-order-id]").forEach((select) => {
         select.addEventListener("change", async (event) => {
@@ -193,6 +210,165 @@ function renderOrdersSummary(orders) {
             }
         });
     });
+}
+
+function openInvoiceWindow(invoice) {
+    const printWindow = window.open("", "_blank", "width=900,height=700");
+    if (!printWindow) {
+        alert("Popup diblokir. Izinkan popup untuk melihat invoice.");
+        return;
+    }
+
+    const itemsHTML = (invoice.items || [])
+        .map((item) => `
+            <tr>
+                <td>${item.title}</td>
+                <td>${item.author}</td>
+                <td>${item.quantity}</td>
+                <td>Rp${Number(item.price).toLocaleString("id-ID")}</td>
+                <td>Rp${Number(item.subtotal).toLocaleString("id-ID")}</td>
+            </tr>
+        `)
+        .join("");
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <title>Invoice #${invoice.id}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 32px; color: #1c1c1c; }
+                h1 { margin-bottom: 8px; }
+                .meta { margin-bottom: 24px; color: #555; }
+                table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background: #f5f1e8; }
+                .total { margin-top: 24px; font-size: 20px; font-weight: bold; text-align: right; }
+                @media print { body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <h1>Invoice Bukuin</h1>
+            <div class="meta">
+                <p><strong>Invoice #:</strong> ${invoice.id}</p>
+                <p><strong>Tanggal:</strong> ${new Date(invoice.created_at).toLocaleDateString("id-ID", { dateStyle: "long" })}</p>
+                <p><strong>Pelanggan:</strong> ${invoice.user_name} (${invoice.user_email || "-"})</p>
+                <p><strong>Status:</strong> ${invoice.status}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Penulis</th>
+                        <th>Qty</th>
+                        <th>Harga</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsHTML}</tbody>
+            </table>
+            <div class="total">Total: Rp${Number(invoice.total_amount).toLocaleString("id-ID")}</div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+function openReportWindow(report) {
+    const printWindow = window.open("", "_blank", "width=1100,height=800");
+    if (!printWindow) {
+        alert("Popup diblokir. Izinkan popup untuk melihat laporan.");
+        return;
+    }
+
+    const stats = report.stats || {};
+    const orders = report.orders || [];
+
+    const orderRows = orders.length
+        ? orders
+              .map(
+                  (order) => `
+                    <tr>
+                        <td>#${order.id}</td>
+                        <td>${order.user_name || "-"}</td>
+                        <td>${order.user_email || "-"}</td>
+                        <td>Rp${Number(order.total_amount).toLocaleString("id-ID")}</td>
+                        <td>${order.status}</td>
+                        <td>${new Date(order.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}</td>
+                    </tr>
+                `
+              )
+              .join("")
+        : `
+            <tr>
+                <td colspan="6">Belum ada data pesanan.</td>
+            </tr>
+        `;
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <title>Laporan Bukuin</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 32px; color: #1c1c1c; }
+                h1 { margin-bottom: 8px; }
+                .meta { margin-bottom: 24px; color: #555; }
+                .stats { display: grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+                .stat { border: 1px solid #ddd; padding: 12px; background: #f9f9f9; }
+                .stat strong { display: block; font-size: 24px; margin-top: 8px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background: #f5f1e8; }
+                @media print { body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <h1>Laporan Bukuin</h1>
+            <div class="meta">
+                <p><strong>Generated:</strong> ${new Date(report.generated_at).toLocaleString("id-ID")}</p>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span>Total User</span>
+                    <strong>${stats.total_users || 0}</strong>
+                </div>
+                <div class="stat">
+                    <span>Total Buku</span>
+                    <strong>${stats.total_books || 0}</strong>
+                </div>
+                <div class="stat">
+                    <span>Total Pesanan</span>
+                    <strong>${stats.total_orders || 0}</strong>
+                </div>
+                <div class="stat">
+                    <span>Revenue</span>
+                    <strong>Rp${Number(stats.total_revenue || 0).toLocaleString("id-ID")}</strong>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#Order</th>
+                        <th>Pelanggan</th>
+                        <th>Email</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>${orderRows}</tbody>
+            </table>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
 }
 
 function renderBestSelling(books, orders) {
@@ -315,5 +491,22 @@ cancelEditButton.addEventListener("click", () => {
     bookForm.reset();
     document.getElementById("book-id").value = "";
 });
+
+if (printReportButton) {
+    printReportButton.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/api/admin/report");
+
+            if (!response.ok) {
+                throw new Error("Gagal memuat laporan.");
+            }
+
+            const report = await response.json();
+            openReportWindow(report);
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
 
 loadDashboard();

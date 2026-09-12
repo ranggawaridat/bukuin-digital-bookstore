@@ -233,6 +233,109 @@ func (h *Handler) GetLibrary(
 	json.NewEncoder(w).Encode(library)
 }
 
+func (h *Handler) GetInvoice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	user, err := auth.GetUserFromContext(
+		r.Context(),
+	)
+	if err != nil {
+		http.Error(
+			w,
+			"unauthorized",
+			http.StatusUnauthorized,
+		)
+		return
+	}
+
+	orderID, err := strconv.Atoi(
+		chi.URLParam(
+			r,
+			"id",
+		),
+	)
+	if err != nil {
+		http.Error(
+			w,
+			"invalid order id",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	order, err :=
+		h.repository.GetOrderByID(
+			user.ID,
+			orderID,
+		)
+
+	if err != nil {
+		log.Printf(
+			"GET ORDER INVOICE ERROR: %v",
+			err,
+		)
+
+		if errors.Is(
+			err,
+			sql.ErrNoRows,
+		) {
+			http.Error(
+				w,
+				"order not found",
+				http.StatusNotFound,
+			)
+			return
+		}
+
+		http.Error(
+			w,
+			"failed to get invoice",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	items := make([]map[string]any, 0, len(order.Items))
+	for _, item := range order.Items {
+		items = append(items, map[string]any{
+			"id":       item.ID,
+			"book_id":  item.BookID,
+			"title":    item.Title,
+			"author":   item.Author,
+			"price":    item.Price,
+			"quantity": item.Quantity,
+			"subtotal": item.Subtotal,
+		})
+	}
+
+	invoice := map[string]any{
+		"id":             order.ID,
+		"user_id":        order.UserID,
+		"status":         order.Status,
+		"total_amount":   order.TotalAmount,
+		"created_at":     order.CreatedAt,
+		"payment_method": order.PaymentMethod,
+		"transaction_id": order.TransactionID,
+		"payment_url":    order.PaymentURL,
+		"paid_at":        nil,
+		"items":          items,
+	}
+
+	if order.PaidAt != nil {
+		invoice["paid_at"] = *order.PaidAt
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	json.NewEncoder(w).Encode(
+		invoice,
+	)
+}
+
 func (h *Handler) GetOrderByID(
 	w http.ResponseWriter,
 	r *http.Request,

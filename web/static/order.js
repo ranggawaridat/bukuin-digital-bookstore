@@ -100,6 +100,12 @@ function renderOrder(
         `
         : "";
 
+    const invoiceButton = `
+        <button type="button" id="view-invoice-button" class="secondary-button">
+            Lihat Struk / Invoice
+        </button>
+    `;
+
     let itemsHTML = "";
 
     order.items.forEach(
@@ -220,6 +226,10 @@ function renderOrder(
 
         ${paymentActions}
 
+        <div class="order-payment-actions">
+            ${invoiceButton}
+        </div>
+
         <a
             href="/orders"
             class="button"
@@ -228,6 +238,93 @@ function renderOrder(
         </a>
 
     `;
+
+    const viewInvoiceButton = document.getElementById("view-invoice-button");
+
+    if (viewInvoiceButton) {
+        viewInvoiceButton.addEventListener("click", async () => {
+            try {
+                const response = await fetch(`/api/orders/${order.id}/invoice`);
+
+                if (!response.ok) {
+                    throw new Error("Gagal memuat struk atau invoice.");
+                }
+
+                const invoice = await response.json();
+                openInvoiceWindow(invoice);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    }
+}
+
+function openInvoiceWindow(invoice) {
+    const printWindow = window.open("", "_blank", "width=900,height=700");
+
+    if (!printWindow) {
+        alert("Popup diblokir. Izinkan popup untuk melihat struk atau invoice.");
+        return;
+    }
+
+    const itemsHTML = (invoice.items || [])
+        .map((item) => `
+            <tr>
+                <td>${item.title}</td>
+                <td>${item.author}</td>
+                <td>${item.quantity}</td>
+                <td>Rp${Number(item.price).toLocaleString("id-ID")}</td>
+                <td>Rp${Number(item.subtotal).toLocaleString("id-ID")}</td>
+            </tr>
+        `)
+        .join("");
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <title>Struk #${invoice.id}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 32px; color: #1c1c1c; }
+                h1 { margin-bottom: 8px; }
+                .meta { margin-bottom: 24px; color: #555; }
+                table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background: #f5f1e8; }
+                .total { margin-top: 24px; font-size: 20px; font-weight: bold; text-align: right; }
+                @media print { body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <h1>Struk / Invoice Bukuin</h1>
+            <div class="meta">
+                <p><strong>Order #:</strong> ${invoice.id}</p>
+                <p><strong>Tanggal:</strong> ${new Date(invoice.created_at).toLocaleDateString("id-ID", { dateStyle: "long" })}</p>
+                <p><strong>Status:</strong> ${invoice.status}</p>
+                ${invoice.payment_method ? `<p><strong>Metode Pembayaran:</strong> ${invoice.payment_method}</p>` : ""}
+                ${invoice.transaction_id ? `<p><strong>ID Transaksi:</strong> ${invoice.transaction_id}</p>` : ""}
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul</th>
+                        <th>Penulis</th>
+                        <th>Qty</th>
+                        <th>Harga</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsHTML}</tbody>
+            </table>
+            <div class="total">Total: Rp${Number(invoice.total_amount).toLocaleString("id-ID")}</div>
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
 }
 
 

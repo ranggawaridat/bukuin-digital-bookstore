@@ -357,6 +357,15 @@ func main() {
 			authHandler.RequireAuth(next.ServeHTTP)(w, r)
 		})
 	}).Get(
+		"/api/orders/{id}/invoice",
+		orderHandler.GetInvoice,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAuth(next.ServeHTTP)(w, r)
+		})
+	}).Get(
 		"/api/library",
 		orderHandler.GetLibrary,
 	)
@@ -382,6 +391,24 @@ func main() {
 	}).Get(
 		"/api/admin/orders",
 		adminHandler.Orders,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/admin/orders/{id}/invoice",
+		adminHandler.Invoice,
+	)
+
+	r.With(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
+		})
+	}).Get(
+		"/api/admin/report",
+		adminHandler.Report,
 	)
 
 	r.With(func(next http.Handler) http.Handler {
