@@ -206,8 +206,6 @@ async function fillFormForEdit(id) {
     document.getElementById("book-category").value = book.category;
     document.getElementById("book-price").value = book.price;
     document.getElementById("book-description").value = book.description;
-    document.getElementById("book-cover-url").value = book.cover_url || "";
-    document.getElementById("book-file-path").value = book.file_path || "";
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -235,26 +233,26 @@ bookForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const formData = new FormData(bookForm);
-    const payload = {
-        title: formData.get("title"),
-        author: formData.get("author"),
-        category: formData.get("category"),
-        description: formData.get("description"),
-        price: Number(formData.get("price")),
-        cover_url: formData.get("cover_url") || "",
-        file_path: formData.get("file_path") || ""
-    };
-
     const bookID = document.getElementById("book-id").value;
     const method = bookID ? "PUT" : "POST";
     const url = bookID ? `/api/admin/books/${bookID}` : "/api/admin/books";
 
+    const body = new FormData();
+
+    body.append("title", String(formData.get("title") || ""));
+    body.append("author", String(formData.get("author") || ""));
+    body.append("category", String(formData.get("category") || ""));
+    body.append("description", String(formData.get("description") || ""));
+    body.append("price", String(formData.get("price") || "0"));
+
+    const coverFile = formData.get("cover");
+    if (coverFile instanceof File && coverFile.size > 0) {
+        body.append("cover", coverFile);
+    }
+
     const response = await fetch(url, {
         method,
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        body
     });
 
     if (!response.ok) {

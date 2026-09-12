@@ -4,8 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/ranggawaridat/bukuin-digital-bookstore/internal/auth"
@@ -26,9 +32,9 @@ func (h *Handler) CreateBook(
 		return
 	}
 
-	var request CreateBookRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+	request, err := parseCreateBookRequest(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -74,9 +80,9 @@ func (h *Handler) UpdateBook(
 		return
 	}
 
-	var request CreateBookRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+	request, err := parseCreateBookRequest(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -92,6 +98,66 @@ func (h *Handler) UpdateBook(
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(book)
+}
+
+func parseCreateBookRequest(r *http.Request) (CreateBookRequest, error) {
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		return CreateBookRequest{}, err
+	}
+
+	request := CreateBookRequest{
+		Title:       strings.TrimSpace(r.FormValue("title")),
+		Author:      strings.TrimSpace(r.FormValue("author")),
+		Category:    strings.TrimSpace(r.FormValue("category")),
+		Description: strings.TrimSpace(r.FormValue("description")),
+		CoverURL:    strings.TrimSpace(r.FormValue("cover_url")),
+		FilePath:    strings.TrimSpace(r.FormValue("file_path")),
+	}
+
+	price, err := strconv.Atoi(r.FormValue("price"))
+	if err == nil {
+		request.Price = price
+	}
+
+	cover, header, err := r.FormFile("cover")
+	if err != nil {
+		if errors.Is(err, http.ErrMissingFile) {
+			return request, nil
+		}
+		return request, err
+	}
+	defer cover.Close()
+
+	contentType := strings.TrimSpace(header.Header.Get("Content-Type"))
+	if contentType != "" && !strings.HasPrefix(contentType, "image/") {
+		return request, errors.New("cover must be an image file")
+	}
+
+	uploadDir := filepath.Clean("./web/static/uploads")
+	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
+		return request, err
+	}
+
+	fileExt := filepath.Ext(header.Filename)
+	if fileExt == "" {
+		fileExt = ".png"
+	}
+
+	fileName := fmt.Sprintf("book-cover-%d%s", time.Now().UnixNano(), fileExt)
+	destination := filepath.Join(uploadDir, fileName)
+
+	destinationFile, err := os.Create(destination)
+	if err != nil {
+		return request, err
+	}
+	defer destinationFile.Close()
+
+	if _, err := io.Copy(destinationFile, cover); err != nil {
+		return request, err
+	}
+
+	request.CoverURL = "/static/uploads/" + fileName
+	return request, nil
 }
 
 func (h *Handler) DeleteBook(

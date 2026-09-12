@@ -105,10 +105,14 @@ function renderCart(cart) {
             element.className =
                 "cart-item";
 
+            const coverMarkup = item.cover_url
+                ? `<img src="${item.cover_url}" alt="${item.title}">`
+                : "📖";
+
             element.innerHTML = `
 
                 <div class="cart-item-cover">
-                    📖
+                    ${coverMarkup}
                 </div>
 
                 <div class="cart-item-info">

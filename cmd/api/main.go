@@ -179,6 +179,20 @@ func main() {
 	)
 
 	r.Get(
+		"/profile",
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			http.ServeFile(
+				w,
+				r,
+				"./web/static/profile.html",
+			)
+		},
+	)
+
+	r.Get(
 		"/admin",
 		func(
 			w http.ResponseWriter,

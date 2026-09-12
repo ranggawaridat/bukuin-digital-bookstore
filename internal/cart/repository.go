@@ -108,6 +108,7 @@ func (r *Repository) GetCart(
 			books.title,
 			books.author,
 			books.price,
+			books.cover_url,
 			cart_items.quantity
 
 		FROM cart_items
@@ -136,6 +137,7 @@ func (r *Repository) GetCart(
 			&item.Title,
 			&item.Author,
 			&item.Price,
+			&item.CoverURL,
 			&item.Quantity,
 		)
 		if err != nil {

@@ -68,7 +68,9 @@ function renderBook(book) {
     bookDetail.innerHTML = `
 
         <div class="book-detail-cover">
-            📖
+            ${book.cover_url
+                ? `<img src="${book.cover_url}" alt="${book.title}">`
+                : "📖"}
         </div>
 
         <div class="book-detail-content">

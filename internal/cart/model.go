@@ -12,6 +12,7 @@ type CartItem struct {
 	Title    string  `json:"title"`
 	Author   string  `json:"author"`
 	Price    float64 `json:"price"`
+	CoverURL string  `json:"cover_url"`
 	Quantity int     `json:"quantity"`
 }
 

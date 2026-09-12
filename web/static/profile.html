@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Profile - Bukuin</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+        BUKUIN.
+    </a>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/books">Books</a>
+        <a href="/cart">Cart</a>
+        <a href="/orders">Orders</a>
+        <a href="/login">Login</a>
+    </nav>
+
+</header>
+
+<main class="profile-page">
+
+    <section class="profile-container">
+
+        <div class="profile-card">
+
+            <p class="eyebrow">
+                PROFILE
+            </p>
+
+            <h1 id="profile-name">
+                Memuat profil...
+            </h1>
+
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <span>Email</span>
+                    <strong id="profile-email">-</strong>
+                </div>
+                <div class="profile-item">
+                    <span>Role</span>
+                    <strong id="profile-role">-</strong>
+                </div>
+                <div class="profile-item">
+                    <span>Bergabung</span>
+                    <strong id="profile-created-at">-</strong>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a href="/orders" class="button">Lihat Pesanan</a>
+                <button type="button" id="logout-button" class="secondary-button">Logout</button>
+            </div>
+
+            <div class="profile-orders">
+                <p class="eyebrow">
+                    RIWAYAT PESANAN
+                </p>
+
+                <div id="profile-orders-list" class="profile-orders-list">
+                    <p>Memuat riwayat pesanan...</p>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="/static/app.js"></script>
+<script src="/static/profile.js"></script>
+
+</body>
+
+</html>

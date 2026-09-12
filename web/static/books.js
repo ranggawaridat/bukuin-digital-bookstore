@@ -68,10 +68,14 @@ function renderBooks(books) {
 
         card.className = "book-card";
 
+        const coverMarkup = book.cover_url
+            ? `<img src="${book.cover_url}" alt="${book.title}">`
+            : "📖";
+
         card.innerHTML = `
 
             <div class="book-cover">
-                📖
+                ${coverMarkup}
             </div>
 
             <p class="book-category">
