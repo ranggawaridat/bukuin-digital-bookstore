@@ -51,61 +51,61 @@ function renderBooks(books) {
     bookList.innerHTML = "";
 
     if (!books || books.length === 0) {
-
         bookList.innerHTML = `
             <p>
                 Buku tidak ditemukan.
             </p>
         `;
-
         return;
     }
 
     books.forEach((book) => {
-
-        const card =
-            document.createElement("article");
-
+        const card = document.createElement("article");
         card.className = "book-card";
 
+        // Saya ganti icon buku menjadi teks "BOOK" jika tidak ada gambar, 
+        // agar sesuai dengan desain referensi.
         const coverMarkup = book.cover_url
             ? `<img src="${book.cover_url}" alt="${book.title}">`
-            : "📖";
+            : "BOOK"; 
 
+        // Update struktur HTML di sini
         card.innerHTML = `
-
             <div class="book-cover">
                 ${coverMarkup}
             </div>
 
-            <p class="book-category">
-                ${book.category}
-            </p>
+            <div class="book-info">
+                <span class="book-category">
+                    ${book.category}
+                </span>
 
-            <h2>
-                ${book.title}
-            </h2>
+                <h2>
+                    ${book.title}
+                </h2>
 
-            <p class="book-author">
-                ${book.author}
-            </p>
+                <p class="book-author">
+                    ${book.author}
+                </p>
 
-            <strong class="book-price">
-                Rp${book.price.toLocaleString("id-ID")}
-            </strong>
-
+                <div class="price-row">
+                    <strong class="book-price">
+                        Rp${book.price.toLocaleString("id-ID")}
+                    </strong>
+                    <button class="btn-beli">Beli</button>
+                </div>
+            </div>
         `;
 
+        // Menambahkan event listener agar kalau di-klik pindah halaman
         card.addEventListener(
             "click",
             () => {
-                window.location.href =
-                    `/books/${book.id}`;
+                window.location.href = `/books/${book.id}`;
             },
         );
 
         bookList.appendChild(card);
-
     });
 }
 

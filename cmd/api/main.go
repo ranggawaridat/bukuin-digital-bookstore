@@ -95,15 +95,13 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Handle(
-		"/static/*",
-		http.StripPrefix(
-			"/static/",
-			http.FileServer(
-				http.Dir("./web/static"),
-			),
-		),
-	)
+	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static")))
+	r.Handle("/static/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		staticHandler.ServeHTTP(w, r)
+	}))
 
 	r.Get(
 		"/",
@@ -114,7 +112,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/index.html",
+				"./web/static/pages/index.html",
 			)
 		},
 	)
@@ -128,7 +126,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/books.html",
+				"./web/static/pages/books.html",
 			)
 		},
 	)
@@ -142,7 +140,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/book.html",
+				"./web/static/pages/book.html",
 			)
 		},
 	)
@@ -156,7 +154,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/cart.html",
+				"./web/static/pages/cart.html",
 			)
 		},
 	)
@@ -170,7 +168,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/orders.html",
+				"./web/static/pages/orders.html",
 			)
 		},
 	)
@@ -184,7 +182,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/order.html",
+				"./web/static/pages/order.html",
 			)
 		},
 	)
@@ -198,7 +196,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/library.html",
+				"./web/static/pages/library.html",
 			)
 		},
 	)
@@ -212,7 +210,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/login.html",
+				"./web/static/pages/login.html",
 			)
 		},
 	)
@@ -226,7 +224,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/register.html",
+				"./web/static/pages/register.html",
 			)
 		},
 	)
@@ -240,7 +238,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/profile.html",
+				"./web/static/pages/profile.html",
 			)
 		},
 	)
@@ -254,7 +252,7 @@ func main() {
 			http.ServeFile(
 				w,
 				r,
-				"./web/static/admin.html",
+				"./web/static/pages/admin.html",
 			)
 		},
 	)

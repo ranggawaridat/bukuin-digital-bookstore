@@ -1,0 +1,501 @@
+
+.hero {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    min-height: 80vh;
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 52px 0 40px;
+}
+
+.hero-content {
+    flex: 1.1;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    border-radius: 28px;
+    max-width: 600px;
+    color: #ffffff;
+}
+
+.hero-image {
+    flex: 1;
+    height: 500px;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.book-showcase {
+    position: relative;
+    width: min(420px, 100%);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.showcase-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    color: #ffffff;
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.18);
+}
+
+.main-book {
+    width: 220px;
+    height: 310px;
+    padding: 18px 18px 14px;
+    transform: rotate(-8deg) translateX(-20px);
+    z-index: 3;
+}
+
+.main-book .book-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.main-book h3 {
+    margin: 16px 0 8px;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.main-book p {
+    margin: 0 0 12px;
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+.book-cover-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 130px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f7dcb4, #d9a85a);
+    color: #5e3d1d;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.18);
+}
+
+.mini-card {
+    width: 150px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mini-card span {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.mini-card strong {
+    font-size: 1.2rem;
+}
+
+.top-card {
+    right: 22px;
+    top: 24px;
+    transform: rotate(12deg);
+    z-index: 2;
+}
+
+.bottom-card {
+    left: 26px;
+    bottom: 26px;
+    transform: rotate(-14deg);
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .hero-image {
+        width: 100%;
+        height: 360px;
+        min-height: 360px;
+    }
+
+    .main-book {
+        width: 200px;
+        height: 260px;
+    }
+
+    .top-card {
+        right: 8px;
+    }
+
+    .bottom-card {
+        left: 8px;
+    }
+}
+.hero-content h1 {
+    font-size: clamp(2.6rem, 5vw, 4.5rem);
+    line-height: 1.05;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-description {
+    max-width: 520px;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.featured-section {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto 80px;
+    padding: 32px 20px 8px;
+}
+
+.section-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.section-header h2 {
+    margin: 8px 0 0;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    color: #ffffff;
+}
+
+.eyebrow-dark {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.text-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.book-grid-home {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 280px);
+    justify-content: left;
+    gap: 22px;
+}
+
+.home-book-card {
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+}
+
+.benefits-section {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto 80px;
+    padding: 8px 20px 0;
+}
+
+.benefits-header {
+    margin-bottom: 24px;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+}
+
+.benefit-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 22px;
+    padding: 26px 24px;
+    color: #ffffff;
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.08);
+}
+
+.benefit-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.benefit-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.4rem;
+}
+
+.benefit-card p {
+    margin: 0;
+    line-height: 1.7;
+    opacity: 0.85;
+}
+
+.site-footer {
+    width: min(1200px, calc(100% - 32px));
+    margin: 0 auto 40px;
+    padding: 28px 18px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.9);
+    /* mengatur level blur */
+        backdrop-filter: blur(4px);
+    
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.footer-logo {
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.site-footer p {
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.7;
+    opacity: 0.8;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-links h4 {
+    margin: 0 0 4px;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+}
+
+.home-book-cover {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: #412c13;
+    font-size: 1.2rem;
+}
+
+.cover-1 {
+    background: linear-gradient(135deg, #f8d9a9, #d39f52);
+}
+
+.cover-2 {
+    background: linear-gradient(135deg, #d7d8ff, #8da0ff);
+}
+
+.cover-3 {
+    background: linear-gradient(135deg, #ffd7c2, #f09b72);
+}
+
+.home-book-info {
+    padding: 12px 10px;
+    /* mengatur level blur */
+    backdrop-filter: blur(7px);
+    color: #ffffff;
+}
+
+.book-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    withe-space: nowrap;
+}
+
+.home-book-info h3 {
+    margin: 8px 4px;
+    font-size: 15px;
+}
+
+.home-book-info p {
+    font-size: 12px;
+    margin-bottom: 12px;
+    opacity: 0.8;
+}
+
+.price-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.price-row strong {
+    font-size: 13px;
+}
+
+.price-row button {
+    border: none;
+    background: #ffffff;
+    color: #1c1c1c;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        padding-top: 28px;
+        gap: 20px;
+    }
+
+    .hero-content {
+        max-width: 100%;
+        width: 100%;
+        padding: 28px 22px;
+    }
+
+    .hero-image {
+        width: 100%;
+        height: 360px;
+        min-height: 360px;
+    }
+
+    .showcase-card {
+        transform: none !important;
+    }
+
+    .book-grid-home {
+        display: grid !important;
+        justify-content: center;
+        grid-template-columns: repeat(auto-fit, 280px) !important; /* Membagi ruang menjadi 2 kolom sama besar */
+        gap: 16px !important; /* Mengatur jarak antar kartu, silakan sesuaikan angkanya */
+    }
+
+    .main-book {
+        width: 200px;
+        height: 260px;
+        transform: rotate(-6deg) translateX(-4px) !important;
+    }
+
+    .top-card {
+        right: 10px;
+        top: 18px;
+    }
+
+    .bottom-card {
+        left: 12px;
+        bottom: 18px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        /* mengatur level blur */
+        backdrop-filter: blur(7px);
+    }
+
+    .site-footer {
+        padding-top: 20px;
+        /* mengatur level blur */
+        backdrop-filter: blur(4px);
+    }
+
+    .footer-inner {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 420px) {
+    .hero {
+        width: calc(100% - 18px);
+        padding-bottom: 40px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.3rem;
+    }
+
+    .hero-description {
+        font-size: 0.98rem;
+    }
+
+    .button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .hero-image {
+        height: 300px;
+        min-height: 300px;
+    }
+
+    .book-grid-home {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* Membagi ruang menjadi 2 kolom sama besar */
+        gap: 16px !important ; /* Mengatur jarak antar kartu, silakan sesuaikan angkanya */
+    }
+
+    .main-book {
+        width: 170px;
+        height: 220px;
+    }
+
+    .mini-card {
+        width: 120px;
+        padding: 12px 12px;
+    }
+
+
+}

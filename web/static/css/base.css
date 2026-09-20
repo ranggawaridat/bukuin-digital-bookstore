@@ -1,0 +1,67 @@
+:root {
+    --bg: #f5f1e8;
+    --surface: #ffffff;
+    --surface-soft: #f8f5f0;
+    --text: #1c1c1c;
+    --muted: #666666;
+    --border: #dddddd;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-stroke: rgba(255, 255, 255, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+a {
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+.img_background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+.img_background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6) blur(2px);
+    /* supaya gambar tidak terlalu terang */
+
+}
+
+.eyebrow {
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    opacity: 0.9;
+}

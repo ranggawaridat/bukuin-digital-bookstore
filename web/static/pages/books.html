@@ -12,14 +12,18 @@
 
     <title>Katalog Buku - Bukuin</title>
 
-    <link
-        rel="stylesheet"
-        href="/static/style.css"
-    >
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/pages/style.css">
 
 </head>
 
 <body>
+
+<div class="img_background">
+    <img class="img_background-image" src="https://file.garden/aqn1gAHOnXqk_T7g/perpus_mobile%20(1).webp" alt="Background bookstore">
+</div>
 
 <header class="navbar">
 
@@ -27,11 +31,18 @@
         BUKUIN.
     </a>
 
-    <nav>
-        <a href="/">Home</a>
-        <a href="/books">Books</a>
-        <a href="/admin">Admin</a>
-        <a href="/login">Login</a>
+    <nav class="navbar-links" aria-label="Main menu">
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/books">Books</a></li>
+            <li><a href="/admin">Admin</a></li>
+            <li><a href="/login">Login</a></li>
+        </ul>
     </nav>
 
 </header>
@@ -97,10 +108,10 @@
 
 </main>
 
-<script src="/static/books.js"></script>
+<script src="/static/js/books.js"></script>
 
 
-<script src="/static/app.js"></script>
+<script src="/static/js/app.js"></script>
 </body>
 
 </html>

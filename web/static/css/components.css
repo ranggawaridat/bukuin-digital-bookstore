@@ -1,0 +1,258 @@
+.button {
+    display: inline-block;
+    padding: 14px 28px;
+    background: #ffffff;
+    color: #000000;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+/* ========================
+   1. BOOK GRID (Container)
+   ======================== */
+.book-grid {
+    display: grid;
+    /* Lebar minimal disesuaikan agar pas 3 kolom di desktop */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+/* ========================
+   2. BOOK CARD (Glass Effect)
+   ======================== */
+.book-card {
+    /* Hapus background putih, ganti dengan efek transparan & blur */
+    background: rgba(0, 0, 0, 0.2); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Border tipis samar */
+    border-radius: 16px; /* Sudut melengkung */
+    overflow: hidden; /* Agar cover tidak keluar dari lengkungan */
+    
+    display: flex;
+    flex-direction: column;
+    color: white; /* Teks menjadi putih */
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ========================
+   3. BOOK COVER (Bagian Atas)
+   ======================== */
+.book-cover {
+    height: 160px; /* Dibuat lebih proporsional */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    color: #333; /* Warna teks BOOK */
+    
+    /* Warna gradien standar, bisa diubah per kartu di HTML */
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+}
+
+/* ========================
+   4. BOOK INFO (Teks Bagian Bawah)
+   ======================== */
+.book-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Mengisi sisa ruang jika tinggi kartu berbeda */
+}
+
+/* Badge Kategori berbentuk kapsul */
+.book-category {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 4px 10px;
+    align-self: flex-start; /* Agar badge tidak selebar kartu */
+    margin-bottom: 12px;
+}
+
+.book-card h2 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+}
+
+.book-author {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: #cccccc;
+}
+
+/* ========================
+   5. PRICE & BUTTON ROW
+   ======================== */
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* Mendorong baris ini ke paling bawah */
+}
+
+.price-row button {
+    border: none;
+    background: #ffffff;
+    color: #1c1c1c;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: auto;
+}
+
+.book-price {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-beli {
+    background: white;
+    color: black;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-beli:hover {
+    background: #eeeeee;
+}
+
+.cart-item-cover {
+    width: 100px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background: #ece7dc;
+    overflow: hidden;
+}
+
+.cart-item-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.logout-button {
+    border: 1px solid #1c1c1c;
+    background: #ffffff;
+    color: #1c1c1c;
+    padding: 8px 12px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.secondary-button,
+.danger-button {
+    padding: 12px 18px;
+    border: 1px solid #1c1c1c;
+    background: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.danger-button {
+    border-color: #a13535;
+    color: #a13535;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+}
+
+.auth-card h1 {
+    font-size: 48px;
+    margin: 10px 0;
+}
+
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.auth-card label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.auth-card input {
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #cccccc;
+    font-size: 16px;
+}
+
+.auth-card button {
+    padding: 14px;
+    margin-top: 10px;
+    border: none;
+    background: #1c1c1c;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.auth-link {
+    margin-top: 25px;
+}
+
+.auth-link a {
+    color: inherit;
+    font-weight: bold;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.admin-table th,
+.admin-table td {
+    text-align: left;
+    padding: 14px 10px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}

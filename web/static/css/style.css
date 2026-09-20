@@ -11,121 +11,209 @@ body {
 
     background: #f5f1e8;
 
-    color: #1c1c1c;
+    
 }
 
+
+.img_background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
 
 /* NAVBAR */
 
 .navbar {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
+    padding: 24px 5%;
+    /* Opsi: Tambahkan efek kaca juga di navbar */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-left-radius: 30px;
+}
 
-    padding:
-        20px
-        10%;
+.navbar .logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    text-decoration: none;
+}
 
-    border-bottom:
-        1px solid
-        #ddd;
+/* --- STYLING DASAR & DESKTOP --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 15px 30px;
+  border-radius: 20px; /* Lekukan seperti sebelumnya */
+  margin: 15px auto;
+  width: 96%;
+  position: relative; /* Penting untuk penempatan menu dropdown mobile */
 }
 
 .logo {
-    color: inherit;
-
-    text-decoration: none;
-
-    font-size: 24px;
-
-    font-weight: bold;
-
-    letter-spacing: 2px;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-nav {
-    display: flex;
-
-    gap: 24px;
+.nav-links {
+  list-style: none;
+  display: flex; /* Menu menyamping di desktop */
+  gap: 20px;
+  margin: 0;
+  padding: 0;
 }
 
-nav a {
-    color: inherit;
+.nav-links a {
+  color: white;
+  text-decoration: none;
+}
 
+/* Sembunyikan tombol toggle di Desktop */
+.menu-toggle {
+  display: none !important; 
+  cursor: pointer;
+}
+
+/* Membuat bentuk ikon hamburger (3 garis) */
+.bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+/* --- STYLING MOBILE (Maksimal lebar layar 768px) --- */
+@media screen and (max-width: 768px) {
+  /* Munculkan tombol toggle */
+  .menu-toggle {
+    display: none !important; 
+  }
+
+  /* Ubah menu menyamping menjadi dropdown ke bawah */
+  .nav-links {
+    position: absolute;
+    top: 100%; /* Berada persis di bawah navbar */
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    flex-direction: column; /* Menu berbaris ke bawah */
+    align-items: center;
+    padding: 20px 0;
+    border-radius: 20px; /* Opsional: memberi lekukan pada dropdown */
+    
+    /* Sembunyikan menu secara default di mobile */
+    display: none; 
+  }
+
+  /* Jarak antar menu di mobile */
+  .nav-links li {
+    margin: 15px 0;
+  }
+
+  /* Class tambahan yang akan diaktifkan oleh JavaScript */
+  .nav-links.active {
+    display: flex; /* Memunculkan menu saat tombol diklik */
+  }
+}
+.navbar nav a {
+    color: #ffffff;
     text-decoration: none;
+    margin-left: 24px;
+    font-size: 16px;
+    transition: opacity 0.3s;
 }
 
 
 /* HERO */
 
+.navbar nav a:hover {
+    opacity: 0.7;
+}
+
+/* 4. Hero Section */
 .hero {
-    min-height: 80vh;
-
     display: flex;
-
     align-items: center;
-
-    padding:
-        60px
-        10%;
+    min-height: 80vh;
+    padding: 0 5%;
+    
 }
 
+/* 5. EFEK GLASSMORPHISM PADA KONTEN TEKS */
 .hero-content {
-    max-width: 750px;
+    /* Warna latar belakang transparan */
+    background: rgba(255, 255, 255, 0.15); 
+    
+    /* Efek buram pada latar belakang */
+    backdrop-filter: blur(16px); 
+    -webkit-backdrop-filter: blur(16px);
+    
+    /* Garis pinggir dan bayangan untuk efek 3D kaca */
+    border: 1px solid rgba(255, 255, 255, 0.3); 
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2); 
+    
+    /* Tata Letak */
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 600px;
+    
+    /* Karena background digelapkan, ubah warna teks jadi putih */
+    color: #ffffff; 
 }
 
+/* 6. Tipografi & Tombol dalam Glass Card */
 .eyebrow {
     font-size: 14px;
-
     letter-spacing: 2px;
-
-    font-weight: bold;
+    margin-bottom: 12px;
+    font-weight: 600;
+    opacity: 0.9;
 }
 
-.hero h1 {
-    font-size: clamp(
-        48px,
-        8vw,
-        96px
-    );
-
-    line-height: 1;
-
-    margin:
-        20px
-        0;
+.hero-content h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3); /* Menambah kontras teks */
 }
 
 .hero-description {
-    max-width: 550px;
-
-    font-size: 18px;
-
-    line-height: 1.7;
-
+    font-size: 1.1rem;
+    line-height: 1.6;
     margin-bottom: 30px;
+    opacity: 0.9;
 }
 
 .button {
     display: inline-block;
-
-    padding:
-        14px
-        24px;
-
-    background: #1c1c1c;
-
-    color: white;
-
+    padding: 14px 28px;
+    background: #ffffff;
+    color: #000000;
     text-decoration: none;
-
-    border: none;
-
-    cursor: pointer;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
+.button:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
 
 /* CATALOG */
 
@@ -133,6 +221,9 @@ nav a {
     padding:
         60px
         10%;
+    img {
+        max-width: 100%;
+    }
 }
 
 .catalog-header {
@@ -176,95 +267,120 @@ nav a {
 }
 
 
-/* BOOK GRID */
-
+/* ========================
+   1. BOOK GRID (Container)
+   ======================== */
 .book-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fill,
-            minmax(220px, 1fr)
-        );
-
+    /* Lebar minimal disesuaikan agar pas 3 kolom di desktop */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
 }
 
-
-/* BOOK CARD */
-
+/* ========================
+   2. BOOK CARD (Glass Effect)
+   ======================== */
 .book-card {
-    padding: 18px;
-
-    background: white;
-
-    border:
-        1px solid
-        #ddd;
-
+    /* Hapus background putih, ganti dengan efek transparan & blur */
+    background: rgba(0, 0, 0, 0.2); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Border tipis samar */
+    border-radius: 16px; /* Sudut melengkung */
+    overflow: hidden; /* Agar cover tidak keluar dari lengkungan */
+    
+    display: flex;
+    flex-direction: column;
+    color: white; /* Teks menjadi putih */
     cursor: pointer;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .book-card:hover {
-    transform:
-        translateY(-4px);
-
-    box-shadow:
-        0 10px 25px
-        rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* ========================
+   3. BOOK COVER (Bagian Atas)
+   ======================== */
 .book-cover {
-    height: 260px;
-
+    height: 160px; /* Dibuat lebih proporsional */
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
-    font-size: 80px;
-
-    background: #ece7dc;
-    overflow: hidden;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    color: #333; /* Warna teks BOOK */
+    
+    /* Warna gradien standar, bisa diubah per kartu di HTML */
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
 }
 
-.book-cover img,
-.book-detail-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+/* ========================
+   4. BOOK INFO (Teks Bagian Bawah)
+   ======================== */
+.book-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Mengisi sisa ruang jika tinggi kartu berbeda */
 }
 
+/* Badge Kategori berbentuk kapsul */
 .book-category {
-    font-size: 12px;
-
+    font-size: 10px;
     letter-spacing: 1px;
-
-    margin-top: 20px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 4px 10px;
+    align-self: flex-start; /* Agar badge tidak selebar kartu */
+    margin-bottom: 12px;
 }
 
 .book-card h2 {
-    margin:
-        8px
-        0;
-
-    font-size: 22px;
+    margin: 0 0 4px 0;
+    font-size: 20px;
 }
 
 .book-author {
-    margin-bottom: 20px;
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: #cccccc;
+}
 
-    color: #666;
+/* ========================
+   5. PRICE & BUTTON ROW
+   ======================== */
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* Mendorong baris ini ke paling bawah */
 }
 
 .book-price {
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-beli {
+    background: white;
+    color: black;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-beli:hover {
+    background: #eeeeee;
 }
 
 
