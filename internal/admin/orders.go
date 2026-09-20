@@ -13,17 +13,23 @@ import (
 )
 
 type OrderSummary struct {
-	ID            int        `json:"id"`
-	UserID        int        `json:"user_id"`
-	UserName      string     `json:"user_name"`
-	UserEmail     string     `json:"user_email,omitempty"`
-	TotalAmount   float64    `json:"total_amount"`
-	Status        string     `json:"status"`
-	CreatedAt     time.Time  `json:"created_at"`
-	PaymentMethod string     `json:"payment_method,omitempty"`
-	TransactionID string     `json:"transaction_id,omitempty"`
-	PaymentURL    string     `json:"payment_url,omitempty"`
-	PaidAt        *time.Time `json:"paid_at,omitempty"`
+	ID            int                `json:"id"`
+	UserID        int                `json:"user_id"`
+	UserName      string             `json:"user_name"`
+	UserEmail     string             `json:"user_email,omitempty"`
+	TotalAmount   float64            `json:"total_amount"`
+	Status        string             `json:"status"`
+	CreatedAt     time.Time          `json:"created_at"`
+	PaymentMethod string             `json:"payment_method,omitempty"`
+	TransactionID string             `json:"transaction_id,omitempty"`
+	PaymentURL    string             `json:"payment_url,omitempty"`
+	PaidAt        *time.Time         `json:"paid_at,omitempty"`
+	Items         []OrderItemSummary `json:"items,omitempty"`
+}
+
+type OrderItemSummary struct {
+	BookID   int `json:"book_id"`
+	Quantity int `json:"quantity"`
 }
 
 func (h *Handler) Orders(w http.ResponseWriter, r *http.Request) {
@@ -100,11 +106,45 @@ func (h *Handler) Orders(w http.ResponseWriter, r *http.Request) {
 			order.PaidAt = &paidAtCopy
 		}
 
+		order.Items, err = h.getOrderItems(order.ID)
+		if err != nil {
+			http.Error(w, "failed to get order items", http.StatusInternalServerError)
+			return
+		}
+
 		orders = append(orders, order)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(orders)
+}
+
+func (h *Handler) getOrderItems(orderID int) ([]OrderItemSummary, error) {
+	rows, err := h.db.Query(`
+		SELECT book_id, quantity
+		FROM order_items
+		WHERE order_id = ?
+		ORDER BY id ASC
+	`, orderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	items := []OrderItemSummary{}
+	for rows.Next() {
+		var item OrderItemSummary
+		if err := rows.Scan(&item.BookID, &item.Quantity); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }
 
 func (h *Handler) getInvoice(orderID int) (map[string]any, error) {

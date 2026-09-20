@@ -91,9 +91,7 @@ function renderCart(cart) {
     cart.items.forEach(
         (item) => {
 
-            const subtotal =
-                item.price *
-                item.quantity;
+            const subtotal = item.price;
 
             total += subtotal;
 
@@ -132,27 +130,6 @@ function renderCart(cart) {
                 </div>
 
                 <div class="cart-item-actions">
-
-                    <div class="quantity-control">
-
-                        <button
-                            data-action="decrease"
-                        >
-                            −
-                        </button>
-
-                        <span>
-                            ${item.quantity}
-                        </span>
-
-                        <button
-                            data-action="increase"
-                        >
-                            +
-                        </button>
-
-                    </div>
-
                     <p>
                         Rp${subtotal.toLocaleString("id-ID")}
                     </p>
@@ -168,50 +145,10 @@ function renderCart(cart) {
 
             `;
 
-            const decreaseButton =
-                element.querySelector(
-                    '[data-action="decrease"]'
-                );
-
-            const increaseButton =
-                element.querySelector(
-                    '[data-action="increase"]'
-                );
-
             const deleteButton =
                 element.querySelector(
                     '[data-action="delete"]'
                 );
-
-            decreaseButton.addEventListener(
-                "click",
-                async () => {
-
-                    if (
-                        item.quantity === 1
-                    ) {
-                        return;
-                    }
-
-                    await updateQuantity(
-                        item.id,
-                        item.quantity - 1,
-                    );
-
-                },
-            );
-
-            increaseButton.addEventListener(
-                "click",
-                async () => {
-
-                    await updateQuantity(
-                        item.id,
-                        item.quantity + 1,
-                    );
-
-                },
-            );
 
             deleteButton.addEventListener(
                 "click",
@@ -263,50 +200,6 @@ function renderCart(cart) {
         "click",
         checkout,
     );
-}
-
-
-async function updateQuantity(
-    itemID,
-    quantity,
-) {
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/cart/items/${itemID}`,
-                {
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-
-                    body: JSON.stringify({
-                        quantity,
-                    }),
-                },
-            );
-
-        if (!response.ok) {
-            throw new Error(
-                "Gagal memperbarui jumlah buku."
-            );
-        }
-
-        loadCart();
-
-    } catch (error) {
-
-        alert(
-            error.message
-        );
-
-        console.error(error);
-
-    }
 }
 
 

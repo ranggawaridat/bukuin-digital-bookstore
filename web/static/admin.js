@@ -146,7 +146,7 @@ function renderOrdersSummary(orders) {
                         <strong>#${order.id}</strong>
                         <p>${order.user_name || "User"}</p>
                         <p>
-                            ${order.transaction_id ? `Transaksi: ${order.transaction_id}` : "Transaksi belum dibuat"}
+                            ${order.transaction_id ? `ID Transaksi: ${order.transaction_id}` : "ID transaksi belum tersedia"}
                         </p>
                         ${order.payment_url ? `<p><a href="${order.payment_url}" target="_blank" rel="noopener noreferrer">Buka link pembayaran</a></p>` : ""}
                     </div>
@@ -380,7 +380,7 @@ function renderBestSelling(books, orders) {
     const salesByBook = new Map();
 
     orders.forEach((order) => {
-        if (!order.items) {
+        if (order.status !== "paid" || !order.items) {
             return;
         }
 

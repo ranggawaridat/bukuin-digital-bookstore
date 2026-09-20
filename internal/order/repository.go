@@ -77,7 +77,7 @@ func (r *Repository) Checkout(
 			books.title,
 			books.author,
 			books.price,
-			cart_items.quantity
+			1 AS quantity
 
 		FROM cart_items
 

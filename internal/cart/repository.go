@@ -71,7 +71,6 @@ func (r *Repository) GetOrCreateCart(
 func (r *Repository) AddItem(
 	cartID int,
 	bookID int,
-	quantity int,
 ) error {
 	_, err := r.db.Exec(
 		`
@@ -80,15 +79,14 @@ func (r *Repository) AddItem(
 			book_id,
 			quantity
 		)
-		VALUES (?, ?, ?)
+		VALUES (?, ?, 1)
 
 		ON CONFLICT(cart_id, book_id)
 		DO UPDATE SET
-			quantity = quantity + excluded.quantity
+			quantity = 1
 		`,
 		cartID,
 		bookID,
-		quantity,
 	)
 
 	return err
@@ -169,12 +167,11 @@ func (r *Repository) UpdateItemQuantity(
 	_, err := r.db.Exec(
 		`
 		UPDATE cart_items
-		SET quantity = ?
+		SET quantity = 1
 		WHERE
 			id = ?
 			AND cart_id = ?
 		`,
-		quantity,
 		itemID,
 		cartID,
 	)

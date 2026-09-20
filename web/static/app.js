@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Gagal mengambil data pengguna:", error);
     }
 
+    if (user && window.location.pathname === "/") {
+        window.location.href = "/books";
+        return;
+    }
+
     navs.forEach((nav) => {
         if (user) {
             nav.innerHTML = `

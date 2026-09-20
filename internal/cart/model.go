@@ -17,8 +17,7 @@ type CartItem struct {
 }
 
 type AddItemRequest struct {
-	BookID   int `json:"book_id"`
-	Quantity int `json:"quantity"`
+	BookID int `json:"book_id"`
 }
 
 type UpdateItemRequest struct {

@@ -84,24 +84,13 @@ Beberapa endpoint membutuhkan session login. Untuk request yang memerlukan login
 
 ```json
 {
-  "book_id": 1,
-  "quantity": 1
+  "book_id": 1
 }
 ```
 
-#### 3. Update Cart Item
+- Setiap buku hanya dapat muncul satu kali di keranjang.
 
-- Method: `PUT`
-- Endpoint: `/api/cart/items/{id}`
-- Body:
-
-```json
-{
-  "quantity": 2
-}
-```
-
-#### 4. Delete Cart Item
+#### 3. Delete Cart Item
 
 - Method: `DELETE`
 - Endpoint: `/api/cart/items/{id}`

@@ -108,9 +108,7 @@ nav a:hover::after { transform: scaleX(1); transform-origin: left; }
 .cart-item-cover { display: flex; width: 92px; height: 120px; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; background: var(--mint); font-size: 44px; }
 .cart-item-info h2, .order-card h2 { margin: 0 0 6px; }
 .cart-item-actions { text-align: right; }
-.quantity-control { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-.quantity-control button { width: 32px; height: 32px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
-.quantity-control button:hover, .secondary-button:hover, .logout-button:hover { border-color: var(--ink); background: var(--mint); }
+.secondary-button:hover, .logout-button:hover { border-color: var(--ink); background: var(--mint); }
 .delete-button { margin-top: 10px; border: 0; background: none; color: var(--coral-dark); font-size: 13px; text-decoration: underline; }
 .cart-summary { margin-top: 26px; padding: 24px; }
 .cart-total, .order-total { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 22px; font-size: 23px; }
@@ -328,7 +326,6 @@ nav a:hover::after { transform: scaleX(1); transform-origin: left; }
     .cart-item { grid-template-columns: 76px 1fr; }
     .cart-item-cover { width: 76px; height: 104px; }
     .cart-item-actions { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; text-align: left; }
-    .quantity-control { justify-content: flex-start; }
     .order-card, .profile-order-item, .order-item, .admin-order-item { align-items: flex-start; flex-direction: column; }
     .order-item-actions { width: 100%; justify-content: space-between; text-align: left; }
     .form-grid { grid-template-columns: 1fr; }
