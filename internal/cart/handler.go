@@ -87,6 +87,10 @@ func (h *Handler) AddItem(
 		return
 	}
 
+	if request.Quantity < 1 {
+		request.Quantity = 1
+	}
+
 	cart, err := h.repository.GetOrCreateCart(
 		user.ID,
 	)
@@ -102,6 +106,7 @@ func (h *Handler) AddItem(
 	err = h.repository.AddItem(
 		cart.ID,
 		request.BookID,
+		request.Quantity,
 	)
 	if err != nil {
 		http.Error(
