@@ -24,19 +24,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     navs.forEach((nav) => {
         if (user) {
             nav.innerHTML = `
-                <a href="/">Home</a>
-                <a href="/books">Books</a>
-                <a href="/cart">Cart</a>
-                <a href="/orders">Orders</a>
-                <a href="/library">My Library</a>
+                <a href="/cart" class="nav-icon-link" aria-label="Cart" title="Cart">
+                    <span aria-hidden="true">🛒</span>
+                </a>
+                <a href="/library" class="nav-icon-link" aria-label="My Library" title="My Library">
+                    <span aria-hidden="true">📚</span>
+                </a>
                 ${user.role === "admin" ? '<a href="/admin">Admin</a>' : ""}
-                <a href="/profile">Profile</a>
-                <button type="button" class="logout-button" data-action="logout">Logout</button>
+                <details class="profile-menu">
+                    <summary class="profile-trigger">Profile</summary>
+                    <div class="profile-menu-panel">
+                        <a href="/profile">Profile</a>
+                        <a href="/orders">Orders</a>
+                        <button type="button" class="logout-button" data-action="logout">Logout</button>
+                    </div>
+                </details>
             `;
         } else {
             nav.innerHTML = `
-                <a href="/">Home</a>
-                <a href="/books">Books</a>
                 <a href="/login">Login</a>
                 <a href="/register">Register</a>
             `;

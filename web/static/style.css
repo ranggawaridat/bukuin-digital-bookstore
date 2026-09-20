@@ -60,6 +60,18 @@ nav a { position: relative; color: var(--muted); font-size: 14px; font-weight: 6
 nav a::after { position: absolute; right: 0; bottom: -7px; left: 0; height: 2px; background: var(--coral); content: ""; transform: scaleX(0); transform-origin: right; transition: transform 160ms ease; }
 nav a:hover { color: var(--ink); }
 nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+.nav-icon-link { display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 18px !important; text-decoration: none; }
+.nav-icon-link::after { display: none; }
+.nav-icon-link:hover { border-color: var(--mint-strong); background: var(--mint); transform: translateY(-2px); }
+.profile-menu { position: relative; }
+.profile-trigger { padding: 8px 0; color: var(--muted); cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; }
+.profile-trigger::-webkit-details-marker { display: none; }
+.profile-trigger::after { display: inline-block; margin-left: 6px; color: var(--coral-dark); content: "⌄"; font-size: 13px; transition: transform 160ms ease; }
+.profile-menu[open] .profile-trigger::after { transform: rotate(180deg); }
+.profile-menu-panel { position: absolute; top: calc(100% + 12px); right: 0; display: flex; min-width: 150px; flex-direction: column; gap: 3px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow-small); }
+.profile-menu-panel a, .profile-menu-panel .logout-button { width: 100%; padding: 9px 10px; border: 0; border-radius: 7px; background: transparent; color: var(--ink); font-size: 13px; text-align: left; text-decoration: none; }
+.profile-menu-panel a::after { display: none; }
+.profile-menu-panel a:hover, .profile-menu-panel .logout-button:hover { background: var(--mint); }
 
 .hero { position: relative; display: flex; min-height: calc(100vh - 74px); align-items: center; overflow: hidden; padding: 92px max(6%, calc((100vw - 1280px) / 2)); }
 .hero::after { position: absolute; right: 7%; bottom: 13%; width: min(34vw, 410px); height: min(34vw, 410px); border: 1px solid rgba(23, 33, 43, 0.1); border-radius: 50%; box-shadow: 0 0 0 22px rgba(23, 33, 43, 0.03), 0 0 0 44px rgba(23, 33, 43, 0.02); content: ""; }
@@ -312,7 +324,7 @@ nav a:hover::after { transform: scaleX(1); transform-origin: left; }
 @media (max-width: 780px) {
     .navbar { align-items: flex-start; padding: 16px 6%; }
     .navbar nav { flex-wrap: wrap; justify-content: flex-end; gap: 8px 14px; }
-    .navbar nav a, .logout-button { font-size: 12px; }
+    .navbar nav a, .profile-trigger, .logout-button { font-size: 12px; }
     .hero { min-height: calc(100vh - 102px); padding: 70px 6%; }
     .hero::after { right: -18%; bottom: 8%; width: 58vw; height: 58vw; }
     .catalog, .book-detail-page, .cart-page, .orders-page, .order-page, .profile-page, .admin-page, .library-page { width: 88%; padding: 52px 0; }
@@ -331,6 +343,7 @@ nav a:hover::after { transform: scaleX(1); transform-origin: left; }
     .form-grid { grid-template-columns: 1fr; }
     .full-width { grid-column: auto; }
     .admin-order-controls { justify-content: flex-start; }
+    .profile-menu-panel { position: fixed; top: 58px; right: 6%; }
 }
 
 @media (max-width: 480px) {
