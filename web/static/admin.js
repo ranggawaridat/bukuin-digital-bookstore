@@ -4,7 +4,12 @@ const ordersList = document.getElementById("orders-list");
 const bestSellingList = document.getElementById("best-selling-list");
 const bookForm = document.getElementById("book-form");
 const cancelEditButton = document.getElementById("cancel-edit");
+const analyticsFilter = document.getElementById("analytics-filter");
+const analyticsStartDate = document.getElementById("analytics-start-date");
+const analyticsEndDate = document.getElementById("analytics-end-date");
+const resetAnalyticsFilterButton = document.getElementById("reset-analytics-filter");
 const printReportButton = document.getElementById("print-report-button");
+let dashboardReportData = null;
 
 async function requireAdmin() {
     const response = await fetch("/api/auth/me");
@@ -49,11 +54,13 @@ async function loadDashboard() {
         const stats = await statsResponse.json();
         const books = await booksResponse.json();
         const orders = await ordersResponse.json();
+        dashboardReportData = { stats, orders };
+        const filteredOrders = filterOrdersByDate(orders);
 
-        renderStats(stats);
+        renderStats(stats, filteredOrders);
         renderBooksTable(books);
         renderOrdersSummary(orders);
-        renderBestSelling(books, orders);
+        renderBestSelling(books, filteredOrders);
     } catch (error) {
         statsGrid.innerHTML = `
             <p>${error.message}</p>
@@ -61,7 +68,26 @@ async function loadDashboard() {
     }
 }
 
-function renderStats(stats) {
+function filterOrdersByDate(orders) {
+    return orders.filter((order) => {
+        const date = new Date(order.created_at);
+        const orderDate = [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0")
+        ].join("-");
+
+        return (!analyticsStartDate.value || orderDate >= analyticsStartDate.value)
+            && (!analyticsEndDate.value || orderDate <= analyticsEndDate.value);
+    });
+}
+
+function renderStats(stats, orders) {
+    const totalRevenue = orders.reduce(
+        (sum, order) => sum + Number(order.total_amount || 0),
+        0
+    );
+
     statsGrid.innerHTML = `
         <article class="stat-card">
             <span>Total User</span>
@@ -73,11 +99,11 @@ function renderStats(stats) {
         </article>
         <article class="stat-card">
             <span>Total Pesanan</span>
-            <strong>${stats.total_orders}</strong>
+            <strong>${orders.length}</strong>
         </article>
         <article class="stat-card">
             <span>Revenue</span>
-            <strong>Rp${Number(stats.total_revenue || 0).toLocaleString("id-ID")}</strong>
+            <strong>Rp${totalRevenue.toLocaleString("id-ID")}</strong>
         </article>
     `;
 }
@@ -277,89 +303,64 @@ function openInvoiceWindow(invoice) {
     printWindow.print();
 }
 
-function openReportWindow(report) {
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+function openReportWindow(orders) {
     const printWindow = window.open("", "_blank", "width=1100,height=800");
     if (!printWindow) {
-        alert("Popup diblokir. Izinkan popup untuk melihat laporan.");
+        alert("Popup diblokir. Izinkan popup untuk mencetak laporan.");
         return;
     }
 
-    const stats = report.stats || {};
-    const orders = report.orders || [];
-
+    const dateRange = analyticsStartDate.value || analyticsEndDate.value
+        ? `${analyticsStartDate.value || "Awal"} - ${analyticsEndDate.value || "Sekarang"}`
+        : "Semua tanggal";
     const orderRows = orders.length
-        ? orders
-              .map(
-                  (order) => `
-                    <tr>
-                        <td>#${order.id}</td>
-                        <td>${order.user_name || "-"}</td>
-                        <td>${order.user_email || "-"}</td>
-                        <td>Rp${Number(order.total_amount).toLocaleString("id-ID")}</td>
-                        <td>${order.status}</td>
-                        <td>${new Date(order.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}</td>
-                    </tr>
-                `
-              )
-              .join("")
-        : `
+        ? orders.map((order) => `
             <tr>
-                <td colspan="6">Belum ada data pesanan.</td>
+                <td>#${order.id}</td>
+                <td>${escapeHTML(order.user_name || "-")}</td>
+                <td>${escapeHTML(order.user_email || "-")}</td>
+                <td>Rp${Number(order.total_amount || 0).toLocaleString("id-ID")}</td>
+                <td>${escapeHTML(order.status)}</td>
+                <td>${new Date(order.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}</td>
             </tr>
-        `;
+        `).join("")
+        : '<tr><td colspan="6">Tidak ada pesanan pada rentang tanggal ini.</td></tr>';
 
     printWindow.document.write(`
         <!DOCTYPE html>
         <html lang="id">
         <head>
             <meta charset="UTF-8">
-            <title>Laporan Bukuin</title>
+            <title>Daftar Pesanan Bukuin</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 32px; color: #1c1c1c; }
                 h1 { margin-bottom: 8px; }
                 .meta { margin-bottom: 24px; color: #555; }
-                .stats { display: grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
-                .stat { border: 1px solid #ddd; padding: 12px; background: #f9f9f9; }
-                .stat strong { display: block; font-size: 24px; margin-top: 8px; }
                 table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                th { background: #f5f1e8; }
+                th, td { border: 1px solid #ddd; padding: 9px; text-align: left; }
+                th { background: #f2f5f3; }
                 @media print { body { padding: 0; } }
             </style>
         </head>
         <body>
-            <h1>Laporan Bukuin</h1>
+            <h1>Daftar Pesanan Bukuin</h1>
             <div class="meta">
-                <p><strong>Generated:</strong> ${new Date(report.generated_at).toLocaleString("id-ID")}</p>
-            </div>
-            <div class="stats">
-                <div class="stat">
-                    <span>Total User</span>
-                    <strong>${stats.total_users || 0}</strong>
-                </div>
-                <div class="stat">
-                    <span>Total Buku</span>
-                    <strong>${stats.total_books || 0}</strong>
-                </div>
-                <div class="stat">
-                    <span>Total Pesanan</span>
-                    <strong>${stats.total_orders || 0}</strong>
-                </div>
-                <div class="stat">
-                    <span>Revenue</span>
-                    <strong>Rp${Number(stats.total_revenue || 0).toLocaleString("id-ID")}</strong>
-                </div>
+                <p><strong>Rentang tanggal:</strong> ${escapeHTML(dateRange)}</p>
+                <p><strong>Dicetak:</strong> ${new Date().toLocaleString("id-ID")}</p>
             </div>
             <table>
                 <thead>
-                    <tr>
-                        <th>#Order</th>
-                        <th>Pelanggan</th>
-                        <th>Email</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Tanggal</th>
-                    </tr>
+                    <tr><th>Pesanan</th><th>Pelanggan</th><th>Email</th><th>Total</th><th>Status</th><th>Tanggal</th></tr>
                 </thead>
                 <tbody>${orderRows}</tbody>
             </table>
@@ -492,21 +493,38 @@ cancelEditButton.addEventListener("click", () => {
     document.getElementById("book-id").value = "";
 });
 
-if (printReportButton) {
-    printReportButton.addEventListener("click", async () => {
-        try {
-            const response = await fetch("/api/admin/report");
+analyticsFilter.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-            if (!response.ok) {
-                throw new Error("Gagal memuat laporan.");
-            }
+    if (analyticsStartDate.value && analyticsEndDate.value
+        && analyticsStartDate.value > analyticsEndDate.value) {
+        analyticsEndDate.setCustomValidity("Tanggal akhir harus setelah tanggal awal.");
+        analyticsEndDate.reportValidity();
+        return;
+    }
 
-            const report = await response.json();
-            openReportWindow(report);
-        } catch (error) {
-            alert(error.message);
-        }
-    });
-}
+    analyticsEndDate.setCustomValidity("");
+    loadDashboard();
+});
+
+analyticsEndDate.addEventListener("input", () => {
+    analyticsEndDate.setCustomValidity("");
+});
+
+resetAnalyticsFilterButton.addEventListener("click", () => {
+    analyticsStartDate.value = "";
+    analyticsEndDate.value = "";
+    analyticsEndDate.setCustomValidity("");
+    loadDashboard();
+});
+
+printReportButton.addEventListener("click", () => {
+    if (!dashboardReportData) {
+        alert("Data laporan belum siap.");
+        return;
+    }
+
+    openReportWindow(filterOrdersByDate(dashboardReportData.orders));
+});
 
 loadDashboard();

@@ -406,15 +406,6 @@ func main() {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
 		})
-	}).Get(
-		"/api/admin/report",
-		adminHandler.Report,
-	)
-
-	r.With(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			authHandler.RequireAdmin(next.ServeHTTP)(w, r)
-		})
 	}).Put(
 		"/api/admin/orders/{id}/status",
 		adminHandler.UpdateOrderStatus,
@@ -453,7 +444,7 @@ func main() {
 
 	log.Fatal(
 		http.ListenAndServe(
-			":8080",
+			"0.0.0.0:8080",
 			r,
 		),
 	)

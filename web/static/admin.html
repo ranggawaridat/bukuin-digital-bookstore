@@ -61,6 +61,20 @@
                     Admin Dashboard
                 </h1>
 
+                <form id="analytics-filter" class="analytics-filter">
+                    <label>
+                        Dari tanggal
+                        <input type="date" id="analytics-start-date">
+                    </label>
+                    <label>
+                        Sampai tanggal
+                        <input type="date" id="analytics-end-date">
+                    </label>
+                    <button type="submit" class="button">Terapkan</button>
+                    <button type="button" id="reset-analytics-filter" class="secondary-button">Reset</button>
+                    <button type="button" id="print-report-button" class="secondary-button">Cetak Laporan</button>
+                </form>
+
                 <div
                     id="stats-grid"
                     class="stats-grid"
@@ -226,10 +240,6 @@
                     <h2>
                         Pesanan Terbaru
                     </h2>
-
-                    <button type="button" id="print-report-button" class="secondary-button">
-                        Cetak Laporan
-                    </button>
 
                 </div>
 

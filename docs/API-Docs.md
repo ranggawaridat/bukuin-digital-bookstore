@@ -218,13 +218,7 @@ Response contoh:
 }
 ```
 
-#### 5. Generate Report
-
-- Method: `GET`
-- Endpoint: `/api/admin/report`
-- Auth required: `Admin`
-
-#### 6. Create Book
+#### 5. Create Book
 
 - Method: `POST`
 - Endpoint: `/api/admin/books`
@@ -238,14 +232,14 @@ Response contoh:
   - `cover` (optional)
   - `ebook` (optional)
 
-#### 7. Update Book
+#### 6. Update Book
 
 - Method: `PUT`
 - Endpoint: `/api/admin/books/{id}`
 - Auth required: `Admin`
 - Form-data sama seperti create book
 
-#### 8. Delete Book
+#### 7. Delete Book
 
 - Method: `DELETE`
 - Endpoint: `/api/admin/books/{id}`

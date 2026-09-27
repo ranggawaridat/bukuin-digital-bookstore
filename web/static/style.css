@@ -129,6 +129,9 @@ nav a:hover::after { transform: scaleX(1); transform-origin: left; }
 .profile-card { padding: clamp(24px, 5vw, 40px); }
 .profile-card h1 { margin: 8px 0 20px; font-size: clamp(38px, 6vw, 68px); line-height: 1; }
 .profile-grid, .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 26px 0; }
+.analytics-filter { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 20px 0; }
+.analytics-filter label { display: grid; gap: 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
+.analytics-filter input { min-height: 42px; padding: 8px 10px; }
 .profile-item, .stat-card, .admin-order-item { border: 1px solid var(--line); border-radius: 10px; background: #f7faf8; padding: 18px; }
 .profile-item span, .stat-card span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
 .profile-actions, .form-actions, .table-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
