@@ -269,4 +269,4 @@ Response contoh:
 
 - Untuk local development, gunakan `http://localhost:8080`.
 - Untuk production, ganti `baseUrl` dengan domain yang aktif.
-- `APP_BASE_URL` juga dapat digunakan agar redirect Midtrans mengarah ke URL yang benar.
+- Atur `APP_BASE_URL` ke alamat web Bukuin agar pengguna kembali ke halaman detail pesanan setelah menyelesaikan pembayaran Midtrans. Untuk lokal, gunakan `http://localhost:8080`.

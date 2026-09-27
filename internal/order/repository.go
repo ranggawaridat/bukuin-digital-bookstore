@@ -271,6 +271,13 @@ func (r *Repository) createMidtransPayment(
 	if baseURL == "" {
 		baseURL = "https://app.sandbox.midtrans.com"
 	}
+	appBaseURL := strings.TrimRight(
+		strings.TrimSpace(os.Getenv("APP_BASE_URL")),
+		"/",
+	)
+	if appBaseURL == "" {
+		appBaseURL = "http://localhost:8080"
+	}
 
 	itemDetails := make(
 		[]map[string]any,
@@ -297,6 +304,9 @@ func (r *Repository) createMidtransPayment(
 		},
 		"item_details":     itemDetails,
 		"enabled_payments": []string{"gopay", "bank_transfer", "shopeepay", "credit_card", "qris"},
+		"callbacks": map[string]string{
+			"finish": fmt.Sprintf("%s/orders/%d", appBaseURL, order.ID),
+		},
 	}
 
 	if userName != "" || userEmail != "" {
