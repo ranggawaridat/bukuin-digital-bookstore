@@ -323,10 +323,13 @@ function openReportWindow(orders) {
     const dateRange = analyticsStartDate.value || analyticsEndDate.value
         ? `${analyticsStartDate.value || "Awal"} - ${analyticsEndDate.value || "Sekarang"}`
         : "Semua tanggal";
+    const totalAmount = orders.reduce(
+        (sum, order) => sum + Number(order.total_amount || 0),
+        0
+    );
     const orderRows = orders.length
         ? orders.map((order) => `
             <tr>
-                <td>#${order.id}</td>
                 <td>${escapeHTML(order.user_name || "-")}</td>
                 <td>${escapeHTML(order.user_email || "-")}</td>
                 <td>Rp${Number(order.total_amount || 0).toLocaleString("id-ID")}</td>
@@ -334,7 +337,7 @@ function openReportWindow(orders) {
                 <td>${new Date(order.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}</td>
             </tr>
         `).join("")
-        : '<tr><td colspan="6">Tidak ada pesanan pada rentang tanggal ini.</td></tr>';
+        : '<tr><td colspan="5">Tidak ada pesanan pada rentang tanggal ini.</td></tr>';
 
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -360,9 +363,12 @@ function openReportWindow(orders) {
             </div>
             <table>
                 <thead>
-                    <tr><th>Pesanan</th><th>Pelanggan</th><th>Email</th><th>Total</th><th>Status</th><th>Tanggal</th></tr>
+                    <tr><th>Pelanggan</th><th>Email</th><th>Total</th><th>Status</th><th>Tanggal</th></tr>
                 </thead>
                 <tbody>${orderRows}</tbody>
+                <tfoot>
+                    <tr><th colspan="2">Total keseluruhan</th><th>Rp${totalAmount.toLocaleString("id-ID")}</th><th colspan="2"></th></tr>
+                </tfoot>
             </table>
         </body>
         </html>
